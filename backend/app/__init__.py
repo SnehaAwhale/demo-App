@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 
 from config import config_by_name
@@ -27,5 +27,15 @@ def create_app(config_name=None):
         from app import models  # noqa: F401 - ensure models are registered before create_all
 
         db.create_all()
+
+    # Serve the built React app (frontend/dist, from `npm run build`) in production.
+    frontend_dist = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_react(path):
+        if path and os.path.exists(os.path.join(frontend_dist, path)):
+            return send_from_directory(frontend_dist, path)
+        return send_from_directory(frontend_dist, "index.html")
 
     return app
