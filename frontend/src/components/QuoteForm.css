@@ -1,0 +1,112 @@
+.quote-form-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+}
+
+.quote-form-card {
+  width: 100%;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--spacing-card-padding);
+}
+
+.quote-form-card__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-field-gap);
+}
+
+.name-row,
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.name-row .form-group,
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  .name-row,
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+.zip-detected-state {
+  margin: -16px 0 0;
+  font-size: 12px;
+}
+
+.zip-detected-state__value {
+  color: #5b9bd5;
+  font-weight: 600;
+}
+
+.zip-detected-state__hint {
+  color: #6b7785;
+}
+
+.quote-form-card__error {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: var(--color-error);
+}
+
+.tobacco-question__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.tobacco-question__label .info-icon {
+  color: var(--color-label);
+  flex-shrink: 0;
+}
+
+.tobacco-toggle {
+  display: flex;
+  gap: 0;
+  width: 100%;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 500;
+  background: #ffffff;
+  border: 1px solid #d0d5dd;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.toggle-btn:first-child {
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+}
+
+.toggle-btn:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.toggle-btn--active {
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .quote-form-card {
+    padding: 24px;
+  }
+}

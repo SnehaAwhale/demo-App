@@ -1,0 +1,147 @@
+.quote-builder-card {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+}
+
+.quote-builder-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.quote-builder-card__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.quote-builder-card__quote-by {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Scoped to this instance only — SegmentedToggle is shared with the
+   Policy Total card's Monthly/Annual toggle, which must stay untouched. */
+.quote-builder-card__quote-by .segmented-toggle__btn {
+  font-size: 13px;
+  border-radius: 4px;
+  color: #666666;
+  border-color: #cccccc;
+}
+
+.quote-builder-card__quote-by .segmented-toggle__btn--active {
+  background: #2962ff;
+  color: #ffffff;
+  border-color: #2962ff;
+}
+
+.quote-builder-card__quote-by-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quote-builder-content {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.amount-section {
+  flex: 0 0 35%;
+}
+
+.rate-class-section {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.amount-field {
+  min-width: 0;
+}
+
+.amount-field__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: #888888;
+  margin-bottom: 6px;
+}
+
+.amount-field__input {
+  width: 90%;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  background: #ffffff;
+  font-family: inherit;
+  outline: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.amount-field__input:focus {
+  border-color: #93b4e0;
+  box-shadow: 0 1px 4px rgba(91, 155, 213, 0.15);
+}
+
+.amount-field__error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #d32f2f;
+}
+
+.rate-class-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rate-class-header__label {
+  font-size: 13px;
+  font-weight: 400;
+  color: #888888;
+}
+
+.build-chart-btn {
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #666666;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .quote-builder-content {
+    flex-direction: column;
+  }
+
+  .amount-section,
+  .rate-class-section {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .quote-builder-card {
+    padding: 20px;
+  }
+}

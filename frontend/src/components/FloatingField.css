@@ -1,0 +1,65 @@
+.form-group {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.floating-label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: #ffffff;
+  padding: 0 6px;
+  font-size: 13px;
+  color: #1a1a1a;
+  font-weight: 400;
+  z-index: 1;
+}
+
+.floating-label .asterisk {
+  color: #1a1a1a;
+}
+
+.form-input {
+  width: 100%;
+  border: 1.5px solid #1a47b8;
+  border-radius: 4px;
+  padding: 16px 14px;
+  font-size: 16px;
+  color: #1a1a1a;
+  font-family: inherit;
+  background: #ffffff;
+  outline: none;
+  appearance: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.form-input::placeholder {
+  color: #b0b0b0;
+}
+
+.form-input:focus {
+  box-shadow: 0 2px 6px rgba(91, 155, 213, 0.2);
+}
+
+select.form-input {
+  cursor: pointer;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%231A47B8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.form-group--error .form-input {
+  border-color: #d32f2f;
+}
+
+.form-group--error .floating-label,
+.form-group--error .floating-label .asterisk {
+  color: #d32f2f;
+}
+
+.field__error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #d32f2f;
+}

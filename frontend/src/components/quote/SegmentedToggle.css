@@ -1,0 +1,27 @@
+.segmented-toggle {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.segmented-toggle__btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid #d0d7e2;
+  background: #ffffff;
+  color: #6b7785;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.segmented-toggle__btn--active {
+  background: #2962ff;
+  border-color: #2962ff;
+  color: #ffffff;
+}
+
+.segmented-toggle__btn:disabled {
+  color: #b0b6c3;
+  cursor: not-allowed;
+}

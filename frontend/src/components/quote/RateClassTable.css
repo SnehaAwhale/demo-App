@@ -1,0 +1,63 @@
+.rate-class-table {
+  width: 100%;
+  border: 1px solid #e5e9f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rate-class-table__header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #f5f7fb;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rate-class-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid #eef1f6;
+  cursor: pointer;
+}
+
+.rate-class-row__name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.rate-class-row--selected .rate-class-row__name {
+  font-weight: 600;
+}
+
+.rate-class-row__radio {
+  accent-color: #2962ff;
+  width: 16px;
+  height: 16px;
+  cursor: inherit;
+}
+
+.rate-class-row__premium {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.rate-class-row--disabled {
+  cursor: not-allowed;
+}
+
+.rate-class-row--disabled .rate-class-row__name,
+.rate-class-row--disabled .rate-class-row__premium {
+  color: #aaaaaa;
+  font-weight: 400;
+}

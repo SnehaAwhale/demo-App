@@ -1,0 +1,46 @@
+:root {
+  --color-header-bg: #ffffff;
+  --color-gradient-start: #5b8def;
+  --color-gradient-end: #7ba4f7;
+  --color-card-bg: #ffffff;
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --color-input-border: #c4c4c4;
+  --color-input-border-focus: #5b8def;
+  --color-label: #666666;
+  --color-label-active: #5b8def;
+  --color-navy: #1a237e;
+  --color-navy-hover: #131a5e;
+  --color-error: #d32f2f;
+  --color-text: #1f2933;
+  --color-text-muted: #6b7785;
+  --color-surface: #f5f7fb;
+  --color-primary: #2554c7;
+
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --radius-button: 8px;
+
+  --spacing-card-padding: 32px;
+  --spacing-field-gap: 24px;
+
+  --font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+button {
+  font-family: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
