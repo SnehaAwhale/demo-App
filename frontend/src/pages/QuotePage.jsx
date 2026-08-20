@@ -44,6 +44,10 @@ export default function QuotePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { quoteData, setQuoteData, setApplicantForm, quoteSelection, setQuoteSelection } = useQuoteContext();
+  // Single source of truth for the rest of this page's lifetime: every
+  // save/recalculate/rider call below reads this one binding instead of
+  // reaching into quoteData.application_id separately each time.
+  const applicationId = quoteData?.application_id;
 
   const [loadError, setLoadError] = useState(null);
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
@@ -155,7 +159,7 @@ export default function QuotePage() {
     // depends on it landing first — see handleToggleRider — can wait for it.
     if (initialRateClass) {
       const savePromise = saveQuote({
-        applicationId: quoteData.application_id,
+        applicationId,
         coverageAmount: initialCoverage,
         selectedRateClass: initialRateClass,
       });
@@ -175,7 +179,7 @@ export default function QuotePage() {
     if (validationError) return;
 
     const timeoutId = setTimeout(() => {
-      recalculateQuote({ applicationId: quoteData.application_id, coverageAmount })
+      recalculateQuote({ applicationId, coverageAmount })
         .then((result) => {
           setRateClasses(result.rate_classes);
           initialCoverageRef.current = coverageAmount;
@@ -185,7 +189,7 @@ export default function QuotePage() {
           // recalculate call above has updated it server-side.
           if (riderOn) {
             toggleRider({
-              applicationId: quoteData.application_id,
+              applicationId,
               riderName: ACCIDENTAL_DEATH_RIDER_NAME,
               enabled: true,
             })
@@ -220,7 +224,7 @@ export default function QuotePage() {
     persistSelection(coverageAmount, rateClassName);
 
     const savePromise = saveQuote({
-      applicationId: quoteData.application_id,
+      applicationId,
       coverageAmount,
       selectedRateClass: rateClassName,
     });
@@ -245,7 +249,7 @@ export default function QuotePage() {
       }
 
       const result = await toggleRider({
-        applicationId: quoteData.application_id,
+        applicationId,
         riderName: ACCIDENTAL_DEATH_RIDER_NAME,
         enabled: nextEnabled,
       });
@@ -270,7 +274,7 @@ export default function QuotePage() {
     setIsSavingNext(true);
     try {
       await saveQuote({
-        applicationId: quoteData.application_id,
+        applicationId,
         coverageAmount,
         selectedRateClass,
       });
@@ -316,7 +320,7 @@ export default function QuotePage() {
 
   return (
     <div className="quote-page">
-      <Header applicationId={quoteData.application_id} applicantSummary={applicantSummary} />
+      <Header applicationId={applicationId} applicantSummary={applicantSummary} />
 
       <div className="page-content">
         <div className="quote-page__hero">
