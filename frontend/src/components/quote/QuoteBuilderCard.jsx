@@ -17,6 +17,11 @@ export default function QuoteBuilderCard({
   selectedRateClass,
   onSelectRateClass,
   premiumBasis,
+  riderOn,
+  onToggleRider,
+  isTogglingRider,
+  riderMonthly,
+  riderAnnual,
 }) {
   function handleCoverageInputChange(event) {
     const digits = parseCurrencyDigits(event.target.value);
@@ -67,7 +72,14 @@ export default function QuoteBuilderCard({
         </div>
       </div>
 
-      <OptionalRiders />
+      <OptionalRiders
+        isOn={riderOn}
+        onToggle={onToggleRider}
+        isToggling={isTogglingRider}
+        riderMonthly={riderMonthly}
+        riderAnnual={riderAnnual}
+        premiumBasis={premiumBasis}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ from app.extensions import db
 from app.models.coverage_option import CoverageOption
 from app.models.rate_base import RateBase
 from app.models.rate_class import RateClass
+from app.models.rider_rate import RiderRate
 
 RATE_CLASSES = [
     ("Level Preferred", 1.000, False, "Best health, no tobacco"),
@@ -20,6 +21,14 @@ RATE_BASE_PRODUCT_TYPE = "L"
 COVERAGE_OPTIONS = [
     ("L", 5000, 50000, 1000, 35000),
     ("S", 5000, 35000, 1000, 25000),
+]
+
+RIDER_RATES = [
+    (
+        "Accidental Death Benefit",
+        0.50,
+        "Doubles the Death Benefit if the Insured dies by Accidental Death",
+    ),
 ]
 
 
@@ -70,7 +79,22 @@ def seed_coverage_options():
     db.session.commit()
 
 
+def seed_rider_rates():
+    for rider_name, rate_per_1000, description in RIDER_RATES:
+        rider = RiderRate.query.filter_by(rider_name=rider_name).first()
+        if rider is None:
+            rider = RiderRate(rider_name=rider_name)
+            db.session.add(rider)
+
+        rider.rate_per_1000 = rate_per_1000
+        rider.description = description
+        rider.is_active = True
+
+    db.session.commit()
+
+
 def seed_all():
     seed_rate_classes()
     seed_rate_base()
     seed_coverage_options()
+    seed_rider_rates()

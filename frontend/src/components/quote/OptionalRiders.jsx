@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { formatCurrencyWithCents } from "../../utils/currency";
 import "./OptionalRiders.css";
 
-export default function OptionalRiders() {
+export default function OptionalRiders({ isOn, onToggle, isToggling, riderMonthly, riderAnnual, premiumBasis }) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isAccidentalDeathOn, setIsAccidentalDeathOn] = useState(false);
 
-  const selectedCount = isAccidentalDeathOn ? 1 : 0;
+  const selectedCount = isOn ? 1 : 0;
+  const riderPremium = premiumBasis === "annual" ? riderAnnual : riderMonthly;
+  const unitLabel = premiumBasis === "annual" ? "/yr" : "/month";
 
   return (
     <div className="optional-riders">
@@ -27,11 +29,12 @@ export default function OptionalRiders() {
         <div className="optional-riders__body">
           <button
             type="button"
-            className={`toggle-switch ${isAccidentalDeathOn ? "toggle-switch--on" : ""}`}
+            className={`toggle-switch ${isOn ? "toggle-switch--on" : ""}`}
             role="switch"
-            aria-checked={isAccidentalDeathOn}
+            aria-checked={isOn}
             aria-label="Accidental Death Benefit Rider"
-            onClick={() => setIsAccidentalDeathOn((prev) => !prev)}
+            disabled={isToggling}
+            onClick={onToggle}
           >
             <span className="toggle-switch__knob" />
           </button>
@@ -40,6 +43,11 @@ export default function OptionalRiders() {
             <div className="optional-riders__subtitle">
               Doubles the Death Benefit if the Insured dies by Accidental Death
             </div>
+            {isOn && riderPremium != null && (
+              <div className="optional-riders__premium">
+                + {formatCurrencyWithCents(riderPremium)} {unitLabel}
+              </div>
+            )}
           </div>
         </div>
       )}

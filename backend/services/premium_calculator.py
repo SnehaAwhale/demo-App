@@ -1,6 +1,7 @@
 from app.models.coverage_option import CoverageOption
 from app.models.rate_base import RateBase
 from app.models.rate_class import RateClass
+from app.models.rider_rate import RiderRate
 
 
 def _get_coverage_option(product_type):
@@ -110,6 +111,17 @@ def recalculate_for_coverage(age, gender, new_coverage, tobacco_use, product_typ
     the frontend calls this every time the user changes the coverage amount.
     """
     return get_all_quotes(age, gender, new_coverage, tobacco_use, product_type)
+
+
+def calculate_rider_premium(coverage_amount, rider_name):
+    rider = RiderRate.query.filter_by(rider_name=rider_name, is_active=True).first()
+    if rider is None:
+        raise ValueError(f"Unknown or inactive rider '{rider_name}'")
+
+    monthly = round(rider.rate_per_1000 * (coverage_amount / 1000), 2)
+    annual = round(monthly * 12, 2)
+
+    return {"rider_name": rider_name, "monthly": monthly, "annual": annual}
 
 
 def get_coverage_options(product_type="L"):

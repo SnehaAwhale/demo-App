@@ -9,6 +9,7 @@ from app.models.rate_class import RateClass
 from app.models.session import Session
 from services.premium_calculator import (
     calculate_premium,
+    calculate_rider_premium,
     get_all_quotes,
     get_coverage_options,
     recalculate_for_coverage,
@@ -123,6 +124,27 @@ quote_save_output = ns.model(
         "monthly_premium": fields.Float,
         "annual_premium": fields.Float,
         "status": fields.String,
+    },
+)
+
+quote_rider_input = ns.model(
+    "QuoteRiderInput",
+    {
+        "application_id": fields.String(required=True),
+        "rider_name": fields.String(required=True, description='e.g. "Accidental Death Benefit"'),
+        "enabled": fields.Boolean(required=True),
+    },
+)
+
+quote_rider_output = ns.model(
+    "QuoteRiderOutput",
+    {
+        "rider_name": fields.String,
+        "rider_monthly": fields.Float,
+        "rider_annual": fields.Float,
+        "base_premium": fields.Float(description="Base monthly premium, no riders"),
+        "total_monthly": fields.Float(description="base_premium + rider_monthly"),
+        "total_annual": fields.Float(description="annual base premium + rider_annual"),
     },
 )
 
@@ -342,4 +364,58 @@ class QuoteSave(Resource):
             "monthly_premium": premium["monthly_premium"],
             "annual_premium": premium["annual_premium"],
             "status": "quote_saved",
+        }, 200
+
+
+@ns.route("/rider")
+class QuoteRider(Resource):
+    @ns.expect(quote_rider_input, validate=False)
+    @ns.response(200, "Success", quote_rider_output)
+    @ns.response(400, "Missing/invalid fields, unknown rider, or no rate class selected yet", error_model)
+    @ns.response(404, "No quote found for this application_id", error_model)
+    def post(self):
+        """Enable or disable an optional rider and return the combined premium totals"""
+        data = request.get_json(silent=True) or {}
+
+        application_id = data.get("application_id")
+        if not application_id:
+            return _error("Missing required field: application_id", 400)
+
+        rider_name = data.get("rider_name")
+        if not rider_name:
+            return _error("Missing required field: rider_name", 400)
+
+        enabled = data.get("enabled")
+        if not isinstance(enabled, bool):
+            return _error("enabled must be a boolean", 400)
+
+        quote = Quote.query.filter_by(application_id=application_id).first()
+        if quote is None:
+            return _error("No quote found for this application_id", 404)
+        if not quote.selected_rate_class or not quote.coverage_amount:
+            return _error("A rate class must be selected before adding a rider", 400)
+
+        try:
+            base_premium = calculate_premium(
+                quote.age, quote.gender, quote.coverage_amount, quote.selected_rate_class, quote.product_type
+            )
+        except ValueError as exc:
+            return _error(str(exc), 400)
+
+        if enabled:
+            try:
+                rider = calculate_rider_premium(quote.coverage_amount, rider_name)
+            except ValueError as exc:
+                return _error(str(exc), 400)
+            rider_monthly, rider_annual = rider["monthly"], rider["annual"]
+        else:
+            rider_monthly, rider_annual = 0.0, 0.0
+
+        return {
+            "rider_name": rider_name,
+            "rider_monthly": rider_monthly,
+            "rider_annual": rider_annual,
+            "base_premium": base_premium["monthly_premium"],
+            "total_monthly": round(base_premium["monthly_premium"] + rider_monthly, 2),
+            "total_annual": round(base_premium["annual_premium"] + rider_annual, 2),
         }, 200

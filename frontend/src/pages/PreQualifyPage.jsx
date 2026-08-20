@@ -13,6 +13,9 @@ import {
   storeApplicantForm,
   clearApplicantForm,
   clearQuoteSelection,
+  clearApplicationId,
+  peekCameFromBack,
+  clearCameFromBackFlag,
 } from "../utils/session";
 import { formatDobInput, validateDob } from "../utils/validation";
 import { lookupStateFromZip } from "../utils/zipToState";
@@ -24,20 +27,44 @@ const ZIP_LENGTH = 5;
 export default function PreQualifyPage() {
   const navigate = useNavigate();
   const { applicantForm, setApplicantForm } = useQuoteContext();
-  const [applicationId, setApplicationId] = useState(getStoredApplicationId());
+
+  // Runs exactly once, before the first paint, so stale data never flashes
+  // on screen. A "Back" navigation from Page 2 sets a sessionStorage flag
+  // right before navigating — its presence is the ONLY signal that this
+  // mount should restore data rather than start fresh. A plain refresh, a
+  // new tab, or the very first visit never sets that flag, so they always
+  // land here with it absent and get a clean slate.
+  const [bootstrap] = useState(() => {
+    const cameFromBack = peekCameFromBack();
+
+    if (!cameFromBack) {
+      clearApplicantForm();
+      clearQuoteSelection();
+      clearApplicationId();
+      return { applicationId: null, form: null };
+    }
+
+    return {
+      applicationId: getStoredApplicationId(),
+      form: applicantForm || getStoredApplicantForm(),
+    };
+  });
+
+  // The flag has already been read (above); clear it once the render has
+  // committed so it can't be misread on a later mount.
+  useEffect(() => {
+    clearCameFromBackFlag();
+  }, []);
+
+  const [applicationId, setApplicationId] = useState(bootstrap.applicationId);
   const [sessionError, setSessionError] = useState(null);
 
-  // Only restore previously entered fields when continuing an existing
-  // session (e.g. the user clicked Back from Page 2) — a brand-new session
-  // should always start with a blank form.
-  const restoredForm = applicationId ? applicantForm || getStoredApplicantForm() : null;
-
-  const [firstName, setFirstName] = useState(restoredForm?.firstName ?? "");
-  const [lastName, setLastName] = useState(restoredForm?.lastName ?? "");
-  const [dob, setDob] = useState(restoredForm?.dob ?? "");
-  const [zipCode, setZipCode] = useState(restoredForm?.zipCode ?? "");
-  const [gender, setGender] = useState(restoredForm?.gender ?? "");
-  const [tobaccoUse, setTobaccoUse] = useState(restoredForm?.tobaccoUse ?? null);
+  const [firstName, setFirstName] = useState(bootstrap.form?.firstName ?? "");
+  const [lastName, setLastName] = useState(bootstrap.form?.lastName ?? "");
+  const [dob, setDob] = useState(bootstrap.form?.dob ?? "");
+  const [zipCode, setZipCode] = useState(bootstrap.form?.zipCode ?? "");
+  const [gender, setGender] = useState(bootstrap.form?.gender ?? "");
+  const [tobaccoUse, setTobaccoUse] = useState(bootstrap.form?.tobaccoUse ?? null);
 
   const [touched, setTouched] = useState({
     dob: false,
@@ -50,11 +77,6 @@ export default function PreQualifyPage() {
 
   useEffect(() => {
     if (applicationId) return;
-    // Starting a genuinely new session — any leftover form/quote data
-    // belongs to a previous applicant and must not leak into this one.
-    clearApplicantForm();
-    clearQuoteSelection();
-    setApplicantForm(null);
 
     let cancelled = false;
     startSession()
@@ -69,7 +91,7 @@ export default function PreQualifyPage() {
     return () => {
       cancelled = true;
     };
-  }, [applicationId, setApplicantForm]);
+  }, [applicationId]);
 
   function markTouched(field) {
     setTouched((prev) => (prev[field] ? prev : { ...prev, [field]: true }));

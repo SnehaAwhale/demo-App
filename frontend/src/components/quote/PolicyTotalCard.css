@@ -94,9 +94,20 @@
   color: #1f2933;
 }
 
+.policy-total-card__detail-value--strong {
+  font-weight: 700;
+}
+
 .policy-total-card__detail-row--base span:last-child {
   color: #2962ff;
   font-weight: 700;
+  font-size: 12px;
+}
+
+.policy-total-card__detail-row--rider span:last-child {
+  color: #2962ff;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 .policy-total-card__dotted-separator {
@@ -123,6 +134,7 @@
   align-items: flex-start;
   gap: 8px;
   font-size: 13px;
+  font-weight: 700;
   color: #1f2933;
 }
 

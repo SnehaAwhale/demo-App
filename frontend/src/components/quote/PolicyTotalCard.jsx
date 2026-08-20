@@ -7,11 +7,21 @@ const BASIS_OPTIONS = [
   { value: "annual", label: "Annual" },
 ];
 
-export default function PolicyTotalCard({ coverageAmount, selectedRateClassData, premiumBasis, onPremiumBasisChange }) {
-  const premium =
+export default function PolicyTotalCard({
+  coverageAmount,
+  selectedRateClassData,
+  premiumBasis,
+  onPremiumBasisChange,
+  riderOn,
+  riderMonthly,
+  riderAnnual,
+}) {
+  const basePremium =
     premiumBasis === "annual" ? selectedRateClassData?.annual : selectedRateClassData?.monthly;
-  const { whole, cents } = splitPremiumParts(premium);
-  const unitLabel = premiumBasis === "annual" ? "/ year" : "/ month";
+  const riderPremium = riderOn ? (premiumBasis === "annual" ? riderAnnual : riderMonthly) : 0;
+  const totalPremium = basePremium != null ? basePremium + riderPremium : null;
+  const { whole, cents } = splitPremiumParts(totalPremium);
+  const unitLabel = premiumBasis === "annual" ? "/yr" : "/ month";
   const basePremiumUnit = premiumBasis === "annual" ? "/yr" : "/mo";
 
   return (
@@ -43,19 +53,31 @@ export default function PolicyTotalCard({ coverageAmount, selectedRateClassData,
         <div className="policy-total-card__details">
           <div className="policy-total-card__detail-row">
             <span>Coverage</span>
-            <span>{formatCurrencyWithCents(coverageAmount)}</span>
+            <span className="policy-total-card__detail-value--strong">
+              {formatCurrencyWithCents(coverageAmount)}
+            </span>
           </div>
           <div className="policy-total-card__detail-row">
             <span>Rate class</span>
-            <span>{selectedRateClassData?.name ?? "—"}</span>
+            <span className="policy-total-card__detail-value--strong">
+              {selectedRateClassData?.name ?? "—"}
+            </span>
           </div>
           <div className="policy-total-card__dotted-separator" />
           <div className="policy-total-card__detail-row policy-total-card__detail-row--base">
             <span>Base premium</span>
             <span>
-              {formatCurrencyWithCents(premium)} {basePremiumUnit}
+              {formatCurrencyWithCents(basePremium)} {basePremiumUnit}
             </span>
           </div>
+          {riderOn && (
+            <div className="policy-total-card__detail-row policy-total-card__detail-row--rider">
+              <span>Accidental Death Benefit Rider</span>
+              <span>
+                + {formatCurrencyWithCents(riderPremium)} {basePremiumUnit}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

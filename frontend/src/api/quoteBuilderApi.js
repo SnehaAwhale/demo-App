@@ -36,3 +36,16 @@ export async function saveQuote({ applicationId, coverageAmount, selectedRateCla
     throw unwrapError(error);
   }
 }
+
+export async function toggleRider({ applicationId, riderName, enabled }) {
+  try {
+    const { data } = await client.post("/quote/rider", {
+      application_id: applicationId,
+      rider_name: riderName,
+      enabled,
+    });
+    return data;
+  } catch (error) {
+    throw unwrapError(error);
+  }
+}

@@ -3,6 +3,7 @@ from app.models.id_sequence import IdSequence
 from app.models.quote import Quote
 from app.models.rate_base import RateBase
 from app.models.rate_class import RateClass
+from app.models.rider_rate import RiderRate
 from app.models.session import Session
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "RateBase",
     "CoverageOption",
     "Quote",
+    "RiderRate",
 ]

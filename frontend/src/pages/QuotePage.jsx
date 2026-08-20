@@ -5,17 +5,19 @@ import Footer from "../components/Footer";
 import QuoteBuilderCard from "../components/quote/QuoteBuilderCard";
 import PolicyTotalCard from "../components/quote/PolicyTotalCard";
 import { useQuoteContext } from "../context/QuoteContext";
-import { recalculateQuote, saveQuote } from "../api/quoteBuilderApi";
+import { recalculateQuote, saveQuote, toggleRider } from "../api/quoteBuilderApi";
 import {
   getStoredApplicationId,
   getStoredQuoteSelection,
   storeQuoteSelection,
   clearApplicantForm,
   clearQuoteSelection,
+  markCameFromBack,
 } from "../utils/session";
 import "./QuotePage.css";
 
 const RECALCULATE_DEBOUNCE_MS = 300;
+const ACCIDENTAL_DEATH_RIDER_NAME = "Accidental Death Benefit";
 
 // Fallback bounds used only when a user lands on /quote directly (e.g. a
 // refresh) with no router state and no context yet — see the mount effect
@@ -54,6 +56,12 @@ export default function QuotePage() {
   const [coverageError, setCoverageError] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [isSavingNext, setIsSavingNext] = useState(false);
+
+  const [riderOn, setRiderOn] = useState(false);
+  const [riderMonthly, setRiderMonthly] = useState(0);
+  const [riderAnnual, setRiderAnnual] = useState(0);
+  const [isTogglingRider, setIsTogglingRider] = useState(false);
+  const [riderError, setRiderError] = useState(null);
 
   const initialCoverageRef = useRef(null);
   const hasHydratedRef = useRef(false);
@@ -134,6 +142,18 @@ export default function QuotePage() {
     setSelectedRateClass(initialRateClass);
     initialCoverageRef.current = quoteData.coverage.current;
     hasHydratedRef.current = true;
+
+    // The default (or restored) rate class is only ever shown client-side
+    // until this point — persist it now so server-side actions that key off
+    // the saved quote (like the rider endpoint) work immediately, without
+    // requiring the user to first re-click a rate class row.
+    if (initialRateClass) {
+      saveQuote({
+        applicationId: quoteData.application_id,
+        coverageAmount: initialCoverage,
+        selectedRateClass: initialRateClass,
+      }).catch((error) => setSaveError(error.message));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quoteData]);
 
@@ -151,6 +171,22 @@ export default function QuotePage() {
         .then((result) => {
           setRateClasses(result.rate_classes);
           initialCoverageRef.current = coverageAmount;
+
+          // The rider endpoint reads coverage_amount from the saved quote
+          // rather than the request body, so this must run AFTER the
+          // recalculate call above has updated it server-side.
+          if (riderOn) {
+            toggleRider({
+              applicationId: quoteData.application_id,
+              riderName: ACCIDENTAL_DEATH_RIDER_NAME,
+              enabled: true,
+            })
+              .then((riderResult) => {
+                setRiderMonthly(riderResult.rider_monthly);
+                setRiderAnnual(riderResult.rider_annual);
+              })
+              .catch((error) => setRiderError(error.message));
+          }
         })
         .catch((error) => setCoverageError(error.message));
     }, RECALCULATE_DEBOUNCE_MS);
@@ -182,7 +218,31 @@ export default function QuotePage() {
     }).catch((error) => setSaveError(error.message));
   }
 
+  async function handleToggleRider() {
+    if (isTogglingRider) return;
+
+    const nextEnabled = !riderOn;
+    setIsTogglingRider(true);
+    setRiderError(null);
+
+    try {
+      const result = await toggleRider({
+        applicationId: quoteData.application_id,
+        riderName: ACCIDENTAL_DEATH_RIDER_NAME,
+        enabled: nextEnabled,
+      });
+      setRiderOn(nextEnabled);
+      setRiderMonthly(result.rider_monthly);
+      setRiderAnnual(result.rider_annual);
+    } catch (error) {
+      setRiderError(error.message);
+    } finally {
+      setIsTogglingRider(false);
+    }
+  }
+
   function handleBack() {
+    markCameFromBack();
     navigate("/");
   }
 
@@ -260,6 +320,11 @@ export default function QuotePage() {
               selectedRateClass={selectedRateClass}
               onSelectRateClass={handleSelectRateClass}
               premiumBasis={premiumBasis}
+              riderOn={riderOn}
+              onToggleRider={handleToggleRider}
+              isTogglingRider={isTogglingRider}
+              riderMonthly={riderMonthly}
+              riderAnnual={riderAnnual}
             />
 
             <PolicyTotalCard
@@ -267,10 +332,14 @@ export default function QuotePage() {
               selectedRateClassData={selectedRateClassData}
               premiumBasis={premiumBasis}
               onPremiumBasisChange={setPremiumBasis}
+              riderOn={riderOn}
+              riderMonthly={riderMonthly}
+              riderAnnual={riderAnnual}
             />
           </div>
 
           {saveError && <div className="quote-page__save-error">Unable to save your selection: {saveError}</div>}
+          {riderError && <div className="quote-page__save-error">Unable to update the rider: {riderError}</div>}
         </main>
 
         <div className="sticky-nav">
