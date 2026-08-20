@@ -65,6 +65,10 @@ export default function QuotePage() {
 
   const initialCoverageRef = useRef(null);
   const hasHydratedRef = useRef(false);
+  // Tracks the most recent in-flight saveQuote() call, so actions that
+  // depend on selected_rate_class already being persisted (the rider
+  // endpoint) can wait for it instead of racing ahead of it.
+  const pendingRateClassSaveRef = useRef(null);
 
   // Hydrate context from Page 1's router state, or recover via a
   // best-effort recalculate call, or bounce back to Page 1. A fresh
@@ -146,13 +150,17 @@ export default function QuotePage() {
     // The default (or restored) rate class is only ever shown client-side
     // until this point — persist it now so server-side actions that key off
     // the saved quote (like the rider endpoint) work immediately, without
-    // requiring the user to first re-click a rate class row.
+    // requiring the user to first re-click a rate class row. Not awaited
+    // (hydration shouldn't block on it), but tracked so anything that
+    // depends on it landing first — see handleToggleRider — can wait for it.
     if (initialRateClass) {
-      saveQuote({
+      const savePromise = saveQuote({
         applicationId: quoteData.application_id,
         coverageAmount: initialCoverage,
         selectedRateClass: initialRateClass,
-      }).catch((error) => setSaveError(error.message));
+      });
+      pendingRateClassSaveRef.current = savePromise;
+      savePromise.catch((error) => setSaveError(error.message));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quoteData]);
@@ -211,11 +219,13 @@ export default function QuotePage() {
     setSaveError(null);
     persistSelection(coverageAmount, rateClassName);
 
-    saveQuote({
+    const savePromise = saveQuote({
       applicationId: quoteData.application_id,
       coverageAmount,
       selectedRateClass: rateClassName,
-    }).catch((error) => setSaveError(error.message));
+    });
+    pendingRateClassSaveRef.current = savePromise;
+    savePromise.catch((error) => setSaveError(error.message));
   }
 
   async function handleToggleRider() {
@@ -226,6 +236,14 @@ export default function QuotePage() {
     setRiderError(null);
 
     try {
+      // Don't race ahead of a still-in-flight rate-class save — the rider
+      // endpoint requires selected_rate_class to already be persisted.
+      // Swallow any failure here; the rider call below will surface a
+      // clear, rider-specific error if the rate class truly never saved.
+      if (pendingRateClassSaveRef.current) {
+        await pendingRateClassSaveRef.current.catch(() => {});
+      }
+
       const result = await toggleRider({
         applicationId: quoteData.application_id,
         riderName: ACCIDENTAL_DEATH_RIDER_NAME,
