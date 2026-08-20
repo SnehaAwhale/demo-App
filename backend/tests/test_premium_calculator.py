@@ -58,6 +58,30 @@ def test_8_tobacco_filtering_tobacco_user(app):
         assert by_name[name]["monthly"] != "N/A"
 
 
+def test_8b_modified_non_tobacco_na_at_or_below_30000(app):
+    for coverage in (25000, 30000):
+        quotes = get_all_quotes(50, "female", coverage, tobacco_use=False)
+        by_name = {quote["rate_class"]: quote for quote in quotes}
+
+        # Still present (tobacco-relevant), just disabled — not excluded.
+        assert set(by_name.keys()) == set(NON_TOBACCO_CLASSES)
+        assert by_name["Modified Non-Tobacco"]["eligible"] is False
+        assert by_name["Modified Non-Tobacco"]["monthly"] == "N/A"
+        assert by_name["Modified Non-Tobacco"]["annual"] == "N/A"
+
+        # The other two non-tobacco classes are unaffected.
+        assert by_name["Level Preferred"]["eligible"] is True
+        assert by_name["Level Non-Tobacco"]["eligible"] is True
+
+
+def test_8c_modified_non_tobacco_eligible_above_30000(app):
+    quotes = get_all_quotes(50, "female", 31000, tobacco_use=False)
+    by_name = {quote["rate_class"]: quote for quote in quotes}
+
+    assert by_name["Modified Non-Tobacco"]["eligible"] is True
+    assert by_name["Modified Non-Tobacco"]["monthly"] != "N/A"
+
+
 def test_9_age_validation(app):
     with pytest.raises(ValueError, match=r"^Age must be 50-85$"):
         calculate_premium(45, "female", 35000, "Level Preferred")

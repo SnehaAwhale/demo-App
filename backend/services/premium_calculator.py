@@ -61,6 +61,12 @@ def calculate_premium(age, gender, coverage_amount, rate_class_name, product_typ
     return {"monthly_premium": monthly, "annual_premium": annual}
 
 
+# Modified Non-Tobacco is only underwritable above this coverage amount;
+# at or below it, the class stays in the list (it's still tobacco-relevant)
+# but renders as a disabled N/A row rather than excluded outright.
+MODIFIED_NON_TOBACCO_MIN_COVERAGE = 30000
+
+
 def get_all_quotes(age, gender, coverage_amount, tobacco_use, product_type="L"):
     _validate_age(age)
     _validate_coverage(coverage_amount, product_type)
@@ -70,10 +76,22 @@ def get_all_quotes(age, gender, coverage_amount, tobacco_use, product_type="L"):
     for rate_class in RateClass.query.all():
         # A rate class that doesn't match the applicant's tobacco status is
         # not just ineligible, it's not a valid option at all — omit it
-        # entirely rather than listing it as a disabled N/A row. (Genuine
-        # underwriting-ineligibility reasons, if added later, belong in the
-        # `else` branch below so they still show as a disabled row.)
+        # entirely rather than listing it as a disabled N/A row.
         if bool(tobacco_use) != bool(rate_class.requires_tobacco):
+            continue
+
+        # Still relevant to this applicant's tobacco answer, but not
+        # underwritable for them — keep the row, show it as disabled N/A.
+        if rate_class.name == "Modified Non-Tobacco" and coverage_amount <= MODIFIED_NON_TOBACCO_MIN_COVERAGE:
+            results.append(
+                {
+                    "rate_class": rate_class.name,
+                    "monthly": "N/A",
+                    "annual": "N/A",
+                    "eligible": False,
+                    "reason": f"Requires coverage above ${MODIFIED_NON_TOBACCO_MIN_COVERAGE:,}",
+                }
+            )
             continue
 
         monthly, annual = _compute_premium(base_rate.rate_per_1000, coverage_amount, rate_class.multiplier)
