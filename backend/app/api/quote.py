@@ -1,3 +1,7 @@
+import logging
+import os
+import time
+
 from flask import request
 from flask_restx import Namespace, Resource, fields
 
@@ -16,6 +20,37 @@ from services.premium_calculator import (
 )
 
 ns = Namespace("quote", description="Quotation flow endpoints")
+
+_log = logging.getLogger("quote_diagnostics")
+# Captured once per worker process at import time — if this timestamp is
+# recent when a "quote not found" error fires, the worker (and therefore
+# its SQLite connection / any un-persisted data) restarted very recently.
+_WORKER_STARTED_AT = time.time()
+_WORKER_PID = os.getpid()
+
+
+def _log_missing_quote(endpoint, application_id):
+    """TEMPORARY diagnostics for the recurring "No quote found for this
+    application_id" reports — logs enough to tell whether the row was
+    never created, the whole DB reset, or this hit a different worker
+    process than the one that created it. Remove once root-caused."""
+    try:
+        session_exists = db.session.get(Session, application_id) is not None
+        session_count = db.session.query(Session).count()
+        quote_count = db.session.query(Quote).count()
+        _log.warning(
+            "MISSING_QUOTE endpoint=%s application_id=%s pid=%s worker_age_s=%.1f "
+            "session_row_exists=%s total_sessions=%s total_quotes=%s",
+            endpoint,
+            application_id,
+            _WORKER_PID,
+            time.time() - _WORKER_STARTED_AT,
+            session_exists,
+            session_count,
+            quote_count,
+        )
+    except Exception:  # noqa: BLE001 - diagnostics must never break the real response
+        _log.exception("MISSING_QUOTE diagnostics logging failed")
 
 REQUIRED_START_FIELDS = [
     "application_id",
@@ -281,6 +316,7 @@ class QuoteRecalculate(Resource):
 
         quote = Quote.query.filter_by(application_id=application_id).first()
         if quote is None:
+            _log_missing_quote("recalculate", application_id)
             return _error("No quote found for this application_id", 404)
 
         try:
@@ -325,6 +361,7 @@ class QuoteSave(Resource):
 
         quote = Quote.query.filter_by(application_id=application_id).first()
         if quote is None:
+            _log_missing_quote("save", application_id)
             return _error("No quote found for this application_id", 404)
 
         rate_class = RateClass.query.filter_by(name=selected_rate_class).first()
@@ -391,6 +428,7 @@ class QuoteRider(Resource):
 
         quote = Quote.query.filter_by(application_id=application_id).first()
         if quote is None:
+            _log_missing_quote("rider", application_id)
             return _error("No quote found for this application_id", 404)
         if not quote.selected_rate_class or not quote.coverage_amount:
             return _error("A rate class must be selected before adding a rider", 400)
