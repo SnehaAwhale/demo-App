@@ -44,10 +44,19 @@ export default function QuotePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { quoteData, setQuoteData, setApplicantForm, quoteSelection, setQuoteSelection } = useQuoteContext();
+
+  // quoteData (context) can still hold the PREVIOUS visit's stale value for
+  // one render tick after a fresh Page 1 submission navigates here — the
+  // setQuoteData(stateQuote) call below doesn't take effect until the next
+  // render. Every downstream read in this component must prefer the fresh
+  // router-state quote over context so nothing ever hydrates from stale data.
+  const stateQuote = location.state?.quote;
+  const effectiveQuote = stateQuote || quoteData;
+
   // Single source of truth for the rest of this page's lifetime: every
   // save/recalculate/rider call below reads this one binding instead of
   // reaching into quoteData.application_id separately each time.
-  const applicationId = quoteData?.application_id;
+  const applicationId = effectiveQuote?.application_id;
 
   const [loadError, setLoadError] = useState(null);
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
@@ -79,7 +88,6 @@ export default function QuotePage() {
   // router-state quote (a brand-new Page 1 submission) always wins over
   // a stale cached quoteData from a previous visit to this page.
   useEffect(() => {
-    const stateQuote = location.state?.quote;
     if (stateQuote) {
       if (stateQuote !== quoteData) {
         setQuoteData(stateQuote);
@@ -121,13 +129,17 @@ export default function QuotePage() {
   // Prefer a previously saved coverage/rate-class selection (e.g. the user
   // clicked Back to Page 1, then Next again) over the fresh defaults.
   useEffect(() => {
-    if (!quoteData || hasHydratedRef.current) return;
+    if (!effectiveQuote || hasHydratedRef.current) return;
 
-    const bounds = { min: quoteData.coverage.min, max: quoteData.coverage.max, step: quoteData.coverage.step };
+    const bounds = {
+      min: effectiveQuote.coverage.min,
+      max: effectiveQuote.coverage.max,
+      step: effectiveQuote.coverage.step,
+    };
     const persistedSelection = quoteSelection || getStoredQuoteSelection();
 
-    let initialCoverage = quoteData.coverage.current;
-    let initialRateClass = firstEligibleName(quoteData.rate_classes);
+    let initialCoverage = effectiveQuote.coverage.current;
+    let initialRateClass = firstEligibleName(effectiveQuote.rate_classes);
 
     if (persistedSelection) {
       const { coverageAmount: savedCoverage, selectedRateClass: savedRateClass } = persistedSelection;
@@ -139,16 +151,16 @@ export default function QuotePage() {
       ) {
         initialCoverage = savedCoverage;
       }
-      if (savedRateClass && quoteData.rate_classes.some((rc) => rc.name === savedRateClass && rc.eligible)) {
+      if (savedRateClass && effectiveQuote.rate_classes.some((rc) => rc.name === savedRateClass && rc.eligible)) {
         initialRateClass = savedRateClass;
       }
     }
 
     setCoverageAmount(initialCoverage);
     setCoverageBounds(bounds);
-    setRateClasses(quoteData.rate_classes);
+    setRateClasses(effectiveQuote.rate_classes);
     setSelectedRateClass(initialRateClass);
-    initialCoverageRef.current = quoteData.coverage.current;
+    initialCoverageRef.current = effectiveQuote.coverage.current;
     hasHydratedRef.current = true;
 
     // The default (or restored) rate class is only ever shown client-side
@@ -167,7 +179,7 @@ export default function QuotePage() {
       savePromise.catch((error) => setSaveError(error.message));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quoteData]);
+  }, [effectiveQuote]);
 
   // Debounced recalculate whenever the user edits the coverage amount.
   useEffect(() => {
