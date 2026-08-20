@@ -3,6 +3,10 @@ import { createPortal } from "react-dom";
 import { BUILD_CHART_ROWS } from "../../data/buildChartData";
 import "./BuildChartModal.css";
 
+function formatRange([min, max]) {
+  return `${min} – ${max}`;
+}
+
 export default function BuildChartModal({ onClose }) {
   useEffect(() => {
     function handleKeyDown(event) {
@@ -31,34 +35,27 @@ export default function BuildChartModal({ onClose }) {
         <div className="build-chart-card">
           <div className="build-chart-table-wrapper">
             <table className="build-chart-table">
+              <colgroup>
+                <col className="build-chart-table__col-height" />
+                <col className="build-chart-table__col-range" />
+                <col className="build-chart-table__col-range" />
+                <col className="build-chart-table__col-range" />
+              </colgroup>
               <thead>
                 <tr>
-                  <th rowSpan={2} className="build-chart-table__height-header">
-                    Height (Feet)
-                  </th>
-                  <th colSpan={2}>Preferred</th>
-                  <th colSpan={2}>Standard</th>
-                  <th colSpan={2}>Modified</th>
-                </tr>
-                <tr>
-                  <th className="build-chart-table__sub-header">Min Weight (lbs)</th>
-                  <th className="build-chart-table__sub-header">Max Weight (lbs)</th>
-                  <th className="build-chart-table__sub-header">Min Weight (lbs)</th>
-                  <th className="build-chart-table__sub-header">Max Weight (lbs)</th>
-                  <th className="build-chart-table__sub-header">Min Weight (lbs)</th>
-                  <th className="build-chart-table__sub-header">Max Weight (lbs)</th>
+                  <th>Height (Feet)</th>
+                  <th>Preferred</th>
+                  <th>Standard</th>
+                  <th>Modified</th>
                 </tr>
               </thead>
               <tbody>
                 {BUILD_CHART_ROWS.map((row) => (
                   <tr key={row.height} className={row.highlighted ? "build-chart-row--highlighted" : ""}>
                     <td>{row.height}</td>
-                    <td>{row.preferred[0]}</td>
-                    <td>{row.preferred[1]}</td>
-                    <td>{row.standard[0]}</td>
-                    <td>{row.standard[1]}</td>
-                    <td>{row.modified[0]}</td>
-                    <td>{row.modified[1]}</td>
+                    <td>{formatRange(row.preferred)}</td>
+                    <td>{formatRange(row.standard)}</td>
+                    <td>{formatRange(row.modified)}</td>
                   </tr>
                 ))}
               </tbody>

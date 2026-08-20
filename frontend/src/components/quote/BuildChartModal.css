@@ -16,7 +16,7 @@
   padding: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
   width: 100%;
-  max-width: 900px;
+  max-width: 640px;
   max-height: 90vh;
   display: flex;
 }
@@ -61,16 +61,28 @@
 
 .build-chart-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 13px;
+}
+
+.build-chart-table__col-height {
+  width: 16%;
+}
+
+.build-chart-table__col-range {
+  width: 28%;
 }
 
 .build-chart-table th,
 .build-chart-table td {
   border: 1px solid #d0d5dd;
-  padding: 10px 14px;
+  padding: 8px 6px;
   text-align: center;
+}
+
+.build-chart-table td {
   white-space: nowrap;
 }
 
@@ -78,20 +90,11 @@
   background: #ffffff;
   color: #1a1a1a;
   font-weight: 700;
+  white-space: normal;
+  line-height: 1.25;
   position: sticky;
-  z-index: 2;
-}
-
-.build-chart-table thead tr:first-child th {
   top: 0;
-}
-
-.build-chart-table thead tr:last-child th {
-  top: 41px;
-}
-
-.build-chart-table__height-header {
-  vertical-align: middle;
+  z-index: 2;
 }
 
 .build-chart-table tbody td {
@@ -114,7 +117,7 @@
 
   .build-chart-table th,
   .build-chart-table td {
-    padding: 8px 10px;
-    font-size: 13px;
+    padding: 6px 4px;
+    font-size: 12px;
   }
 }
