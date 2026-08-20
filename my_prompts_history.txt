@@ -1,0 +1,2792 @@
+=== 2026-08-18T18:28:33.796Z ===
+Build a react project
+
+=== 2026-08-18T18:55:29.197Z ===
+I want to create a UI page/ landing page for creating an account for life insurence in which  at the top and middle of the page it should have "Get a life insurence quote in seconds" written in while and background should be aof blue colour, below that in the there should be a white box in which there are different feilds one below other. where the user should be able to enter the his details like date of birth in the format MM/DD/YYYY in the box , below that box there should be a State of Residence dropbox where the user should be able to select states from the US and one more gender dropdown , to select gender from the list Male , female , also indclude the question below HAVE you used tobacco in any form in the last 12 month with yes or no option buttoon.
+
+=== 2026-08-19T15:00:28.257Z ===
+I want to build a web based applcation on life insurance quotation, Stacks : Flask, React js, Sqlite, swagger. Set up the foundation only: 1. flask backened with the basic project stucture, 2. One working endpoint of GET / health 3, swagger UI at api/docs 4. CORS enebled for REACT frontend. Do not build the front end yet, Do not make the calculation logic Yet. I will give you the more detailsin next steps
+
+=== 2026-08-19T15:36:24.051Z ===
+I want to build a session management API for this application. When the user start new quotation , a unique Application ID should persist throughout the entire application process, from from front page to the last page until aplplication is submitted or abandoned. 1. User Open the quotation form with the API POST /session/start : -That genrates Application ID -Return the ID to Front end -status "In Progess". The User navigate to the pages the same ID should stays  while user filling the form. store session ID in react state+ Local storage (to survive page refresh)Every subsequent API call should includes this session ID in header
+
+=== 2026-08-19T15:37:23.844Z ===
+I want to build a session management API for this application. When the user start new quotation , a unique Application ID should persist throughout the entire application process, from from front page to the last page until aplplication is submitted or abandoned. 1. User Open the quotation form with the API POST /session/start : -That genrates Application ID -Return the ID to Front end -status "In Progess". The User navigate to the pages the same ID should stays  while user filling the form. store session ID in react state+ Local storage (to survive page refresh)Every subsequent API call should includes this session ID in header. I will give you the fromat of applcation ID in next step
+
+=== 2026-08-19T15:45:41.785Z ===
+When the user closes the application without the sumbitting the, session stays In-Progess, ones the user submit the final quote , POST session/{app_id}/complete, status changes to Completed and session ID is retired
+
+=== 2026-08-19T15:51:30.795Z ===
+Applcation ID should be in this fromat : ARCF 26 23 0 S 398 - last three digit auto incrementing number, at S position  Initial of First name, "0" is the single digit product code, "23" for day ,"26" for year ,"ARCF" its a prefix
+
+=== 2026-08-19T15:51:55.317Z ===
+Applcation ID should be in this fromat : ARCF 26 23 0 S 398 - last three digit auto incrementing number, at S position  Initial of First name, "0" is the single digit product code, "23" for present day ,"26" for present year ,"ARCF" its a prefix
+
+=== 2026-08-19T15:54:17.070Z ===
+let that be the Alphabet sequence in sequential order
+
+=== 2026-08-19T16:04:26.939Z ===
+Keep that "S" for now, Later I might change it according to requirement.The Id should be continous whithout a seperator, and the last three didgit shouldbe counting down forever from 999,
+
+=== 2026-08-19T16:27:40.282Z ===
+run this flask app
+
+=== 2026-08-19T16:29:26.507Z ===
+Include swagger
+
+=== 2026-08-19T17:07:27.232Z ===
+Build the premium calculation engine with dynamic coverage adjustment.
+
+CONTEXT:
+I already have session endpoints working. Now I need rate tables, 
+premium calculator, and coverage-based premium updates.
+DATABASE TABLES — add to existing database Table: rate_classes
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - name (TEXT, UNIQUE) → "Level Preferred", "Level Non-Tobacco", 
+    "Level Tobacco", "Modified Non-Tobacco", "Modified Tobacco"
+  - multiplier (REAL) → 1.000, 1.190, 1.585, 1.350, 1.750
+  - requires_tobacco (BOOLEAN) 
+    → false for: Level Preferred, Level Non-Tobacco, Modified Non-Tobacco
+    → true for: Level Tobacco, Modified Tobacco
+  - description (TEXT)
+  - is_active (BOOLEAN, DEFAULT true)
+
+Table: rate_base
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - age (INTEGER) → 50 to 85 ONLY
+  - gender (TEXT) → "male", "female"
+  - rate_per_1000 (REAL) → base monthly rate per $1,000 of coverage
+  - product_type (TEXT) → "L" for Life, "S" for Final Expense
+
+Table: coverage_options
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - product_type (TEXT) → "L" or "S"
+  - min_coverage (INTEGER) → 5000
+  - max_coverage (INTEGER) → 50000
+  - step (INTEGER) → 1000 (increments of $1,000)
+  - default_coverage (INTEGER) → 35000
+
+Table: quotes
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - application_id (TEXT, FK → quote_sessions.application_id)
+  - first_name (TEXT)
+  - last_name (TEXT)
+  - date_of_birth (TEXT)
+  - age (INTEGER)
+  - gender (TEXT)
+  - tobacco_use (BOOLEAN)
+  - coverage_amount (INTEGER)
+  - selected_rate_class (TEXT)
+  - monthly_premium (REAL)
+  - annual_premium (REAL)
+  - product_type (TEXT)
+  - created_at (DATETIME)
+  - updated_at (DATETIME)
+
+=== 2026-08-19T17:07:45.981Z ===
+Build the premium calculation engine with dynamic coverage adjustment.
+
+CONTEXT:
+I already have session endpoints working. Now I need rate tables, 
+premium calculator, and coverage-based premium updates.
+DATABASE TABLES — add to existing database Table: rate_classes
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - name (TEXT, UNIQUE) → "Level Preferred", "Level Non-Tobacco", 
+    "Level Tobacco", "Modified Non-Tobacco", "Modified Tobacco"
+  - multiplier (REAL) → 1.000, 1.190, 1.585, 1.350, 1.750
+  - requires_tobacco (BOOLEAN) 
+    → false for: Level Preferred, Level Non-Tobacco, Modified Non-Tobacco
+    → true for: Level Tobacco, Modified Tobacco
+  - description (TEXT)
+  - is_active (BOOLEAN, DEFAULT true)
+
+Table: rate_base
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - age (INTEGER) → 50 to 85 ONLY
+  - gender (TEXT) → "male", "female"
+  - rate_per_1000 (REAL) → base monthly rate per $1,000 of coverage
+  - product_type (TEXT) → "L" for Life, "S" for Final Expense
+
+Table: coverage_options
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - product_type (TEXT) → "L" or "S"
+  - min_coverage (INTEGER) → 5000
+  - max_coverage (INTEGER) → 50000
+  - step (INTEGER) → 1000 (increments of $1,000)
+  - default_coverage (INTEGER) → 35000
+
+Table: quotes
+  - id (INTEGER, PRIMARY KEY, AUTO INCREMENT)
+  - application_id (TEXT, FK → quote_sessions.application_id)
+  - first_name (TEXT)
+  - last_name (TEXT)
+  - date_of_birth (TEXT)
+  - age (INTEGER)
+  - gender (TEXT)
+  - tobacco_use (BOOLEAN)
+  - coverage_amount (INTEGER)
+  - selected_rate_class (TEXT)
+  - monthly_premium (REAL)
+  - annual_premium (REAL)
+  - product_type (TEXT)
+  - created_at (DATETIME)
+  - updated_at (DATETIME)   I am goint to give you the seed data below
+
+=== 2026-08-19T17:11:10.177Z ===
+Premium calculater service i will provide in next to next step after i provide you with the seed data
+
+=== 2026-08-19T17:12:21.687Z ===
+following is the seed data : Rate Classes — insert these 5 rows:
+  ("Level Preferred",     1.000, false, "Best health, no tobacco")
+  ("Level Non-Tobacco",   1.190, false, "Standard health, no tobacco")
+  ("Modified Non-Tobacco", 1.350, false, "Health conditions, no tobacco")
+  ("Level Tobacco",       1.585, true,  "Tobacco user, good health")
+  ("Modified Tobacco",    1.750, true,  "Tobacco user, health conditions")
+
+Rate Base — generate rates for ages 50 to 85:
+  Reference point: Age 50, Female = $2.211 per $1,000/month
+  Reference point: Age 50, Male = $2.654 per $1,000/month
+  Growth rate: 3.9% compound per year
+  
+  Formula for any age:
+    rate_per_1000 = base_rate_at_50 * (1.039 ^ (age - 50))
+  
+  Generate one row per age per gender for product_type "L"
+  That's 36 ages × 2 genders = 72 rows
+
+Coverage Options — insert:
+  ("L", 5000, 50000, 1000, 35000)
+  ("S", 5000, 35000, 1000, 25000)
+
+=== 2026-08-19T17:15:48.507Z ===
+Now here is the premiums calculater service File: /backend/services/premium_calculator.py
+
+Function: calculate_premium(age, gender, coverage_amount, 
+          rate_class_name, product_type="L")
+  
+  Validation:
+    - age must be 50-85, else raise ValueError("Age must be 50-85")
+    - coverage must be within min/max from coverage_options table
+    - coverage must be divisible by step (1000)
+    - rate_class_name must exist in rate_classes table
+  
+  Logic:
+    1. Look up rate_per_1000 from rate_base for (age, gender, product_type)
+    2. Look up multiplier from rate_classes for rate_class_name
+    3. monthly = rate_per_1000 × (coverage_amount ÷ 1000) × multiplier
+    4. annual = monthly × 12
+    5. Return rounded to 2 decimal places
+  
+  Return: {
+    "monthly_premium": 77.38,
+    "annual_premium": 928.56
+  }
+
+
+Function: get_all_quotes(age, gender, coverage_amount, 
+          tobacco_use, product_type="L")
+  
+  Validation:
+    - Same age and coverage validations as above
+  
+  Logic:
+    1. Look up base rate for (age, gender, product_type)
+    2. Get ALL rate_classes from database
+    3. For each rate class:
+       - If tobacco_use=false AND rate_class.requires_tobacco=true
+         → mark as "N/A" with reason "Tobacco rate class - not applicable"
+       - If tobacco_use=true AND rate_class.requires_tobacco=false
+         → mark as "N/A" with reason "Non-tobacco rate class - not applicable"
+       - Otherwise → calculate premium
+    4. Return list sorted by monthly_premium ascending
+  
+  Return: [
+    {
+      "rate_class": "Level Preferred", 
+      "monthly": 77.38, 
+      "annual": 928.56, 
+      "eligible": true
+    },
+    {
+      "rate_class": "Level Non-Tobacco", 
+      "monthly": 91.80, 
+      "annual": 1101.60, 
+      "eligible": true
+    },
+    {
+      "rate_class": "Modified Non-Tobacco", 
+      "monthly": "N/A", 
+      "annual": "N/A", 
+      "eligible": false, 
+      "reason": "Not available for this applicant"
+    }
+  ]
+
+
+Function: recalculate_for_coverage(age, gender, new_coverage, 
+          tobacco_use, product_type="L")
+  
+  Purpose: When user moves the coverage slider, recalculate 
+  ALL rate classes instantly for the new amount.
+  
+  Logic:
+    1. Validate new_coverage is within allowed range and step
+    2. Call get_all_quotes with new_coverage
+    3. Return updated premiums for all rate classes
+  
+  This is the SAME as get_all_quotes but named explicitly 
+  for the coverage change use case. The frontend calls this 
+  every time the user changes the coverage amount.
+
+
+Function: get_coverage_options(product_type="L")
+  
+  Purpose: Tell the frontend what coverage range to show
+  
+  Return: {
+    "min": 5000,
+    "max": 50000,
+    "step": 1000,
+    "default": 35000
+  }
+
+=== 2026-08-19T17:18:48.648Z ===
+I am going to give you a key business rule now : he relationship between coverage and premium is LINEAR.
+Double the coverage = double the premium.
+
+  $35,000 coverage, Age 50, Level Preferred → $77.38/month
+  $25,000 coverage, Age 50, Level Preferred → $55.27/month  
+  $50,000 coverage, Age 50, Level Preferred → $110.54/month
+
+This is because the formula uses rate_per_1000 × (coverage ÷ 1000).
+The rate_per_1000 stays the same — only the coverage multiplier changes
+
+=== 2026-08-19T17:21:51.621Z ===
+Now do the unit testing: File: /backend/tests/test_premium_calculator.py
+
+Test 1: Age 50, Female, $35,000, Level Preferred → $77.38/month
+Test 2: Age 50, Female, $35,000, Level Non-Tobacco → $91.80/month
+Test 3: Age 50, Female, $35,000, Level Tobacco → $122.86/month
+Test 4: Age 51, Female, $35,000, Level Preferred → $80.56/month
+Test 5: Age 56, Female, $35,000, Level Preferred → $97.03/month
+
+Test 6 — Coverage change:
+  Age 50, Female, $25,000, Level Preferred → $55.27/month
+  Age 50, Female, $50,000, Level Preferred → $110.54/month
+
+Test 7 — Tobacco filtering:
+  get_all_quotes(50, "female", 35000, tobacco_use=false)
+  → should return Level Preferred, Level Non-Tobacco, 
+    Modified Non-Tobacco as eligible
+  → should return Level Tobacco, Modified Tobacco as "N/A"
+
+Test 8 — Tobacco user:
+  get_all_quotes(50, "female", 35000, tobacco_use=true)
+  → should return Level Tobacco, Modified Tobacco as eligible
+  → should return Level Preferred, Level Non-Tobacco, 
+    Modified Non-Tobacco as "N/A"
+
+Test 9 — Age validation:
+  calculate_premium(45, "female", 35000, "Level Preferred")
+  → should raise ValueError("Age must be 50-85")
+
+Test 10 — Coverage validation:
+  calculate_premium(50, "female", 60000, "Level Preferred")
+  → should raise ValueError("Coverage must be between $5,000 and $50,000")
+
+  calculate_premium(50, "female", 35500, "Level Preferred")
+  → should raise ValueError("Coverage must be in increments of $1,000")
+
+=== 2026-08-19T17:36:11.869Z ===
+We will build the Quote API endpoints now , premium service and session endpoints already exist. I will show you the flow : Page 1 collects: name, DOB, state, gender, tobacco
+  User clicks NEXT → POST /api/quote/start
+  Page 2 shows: coverage slider + rate class premiums
+  User moves slider → POST /api/quote/recalculate  
+  User selects plan → POST /api/quote/save Dont start building the API yes, I will tell the endpoint details in next steps
+
+=== 2026-08-19T17:38:58.090Z ===
+ENDPOINT 1: POST /api/quote/start
+  Called when: user clicks NEXT on Page 1
+
+  Input: {
+    "application_id": "ARCF26216L404",
+    "first_name": "Sneha",
+    "last_name": "Awhale",
+    "date_of_birth": "03/15/1974",
+    "state": "Ohio",
+    "gender": "female",
+    "tobacco_use": false
+  }
+
+  Logic:
+    1. Validate application_id exists in quote_sessions 
+       and status is "in_progress"
+    2. Calculate age from date_of_birth
+    3. Validate age is 50-85, return 400 if not:
+       {"error": "Applicant must be between 50 and 85 years old"}
+    4. Get coverage options from coverage_options table
+    5. Call get_all_quotes() with age, gender, default coverage, 
+       tobacco_use
+    6. Save applicant details to quotes table linked to 
+       application_id
+    7. Return applicant info + coverage options + all rate 
+       class premiums
+
+  Output: {
+    "application_id": "ARCF26216L404",
+    "applicant": {
+      "name": "Sneha Awhale",
+      "age": 50,
+      "gender": "female",
+      "state": "Ohio",
+      "tobacco_use": false
+    },
+    "coverage": {
+      "current": 35000,
+      "min": 5000,
+      "max": 50000,
+      "step": 1000
+    },
+    "rate_classes": [
+      {"name": "Level Preferred", "monthly": 77.38, 
+       "annual": 928.56, "eligible": true},
+      {"name": "Level Non-Tobacco", "monthly": 91.80, 
+       "annual": 1101.60, "eligible": true},
+      {"name": "Modified Non-Tobacco", "monthly": null, 
+       "annual": null, "eligible": false, "reason": "N/A"}
+    ]
+  }
+
+  Errors:
+    400 — missing fields, invalid age, invalid date format
+    404 — application_id not found
+    410 — session expired
+
+=== 2026-08-19T17:44:00.377Z ===
+ENDPOINT 2: POST /api/quote/recalculate
+  Called when: user moves the coverage amount slider on Page 2
+
+  Input: {
+    "application_id": "ARCF26216L404",
+    "coverage_amount": 25000
+  }
+
+  Logic:
+    1. Look up existing quote by application_id
+    2. Get saved age, gender, tobacco_use from that quote
+    3. Validate coverage_amount is within min/max and 
+       divisible by step
+    4. Call get_all_quotes() with new coverage
+    5. Update coverage_amount in quotes table
+    6. Return updated premiums
+
+  Output: {
+    "coverage": 25000,
+    "rate_classes": [
+      {"name": "Level Preferred", "monthly": 55.27, 
+       "annual": 663.24, "eligible": true},
+      {"name": "Level Non-Tobacco", "monthly": 65.57, 
+       "annual": 786.84, "eligible": true},
+      {"name": "Modified Non-Tobacco", "monthly": null, 
+       "annual": null, "eligible": false, "reason": "N/A"}
+    ]
+  }
+
+  Errors:
+    400 — invalid coverage amount
+    404 — no quote found for this application_id
+
+  PERFORMANCE NOTE: This endpoint will be called frequently 
+  as the user drags the slider. Keep it fast — no heavy 
+  computation, just lookup + multiply.
+
+=== 2026-08-19T17:47:52.061Z ===
+ENDPOINT 3: POST /api/quote/save
+  Called when: user selects a rate class on Page 2
+
+  Input: {
+    "application_id": "ARCF26216L404",
+    "coverage_amount": 35000,
+    "selected_rate_class": "Level Preferred"
+  }
+
+  Logic:
+    1. Look up existing quote by application_id
+    2. Calculate final premium for selected rate class
+    3. Update quotes table: coverage, selected_rate_class, 
+       monthly_premium, annual_premium, updated_at
+    4. Return confirmation
+
+  Output: {
+    "application_id": "ARCF26216L404",
+    "applicant": "Sneha Awhale",
+    "selected_rate_class": "Level Preferred",
+    "coverage": 35000,
+    "monthly_premium": 77.38,
+    "annual_premium": 928.56,
+    "status": "quote_saved"
+  }
+
+═══════════════════════════════════════════════
+
+Add Swagger documentation for all 3 endpoints.
+Use the existing premium_calculator service — do not rewrite it.
+DO NOT build the frontend yet.
+
+=== 2026-08-19T17:58:40.340Z ===
+Fix this error "error": "No base rate found for age 61, gender 'FEMALE', product_type 'L' and tell me the reason?
+
+=== 2026-08-19T18:06:20.284Z ===
+Build the React frontend Page 1 — the pre-qualification form.
+
+REFERENCE: This page matches the NewBridge design I shared earlier.
+Backend APIs are working at:
+  POST /api/session/start → returns { application_id }
+  POST /api/quote/start → returns applicant info + premiums
+ I will tell the page layout in next steps
+
+=== 2026-08-19T18:24:51.225Z ===
+- Date of Birth: valid date, age must be 50-85
+  Show error immediately after user finishes typing
+- State: must be selected (not "Select")
+- Gender: must be selected (not "Select")  
+- Tobacco: must select Yes or No
+- All errors show as red text below the field
+- Next button enables ONLY when all 4 fields are valid
+
+=== 2026-08-19T18:33:26.668Z ===
+First name and Last name shoulbe be side to side, there should be watermark available on the dateformat in date of birth. Add a footer section to Page 1, positioned below the form card 
+and Next button.
+
+FOOTER LAYOUT:
+
+1. Thin blue line separator (full width, same blue as hero section)
+
+2. Footer content area (white background, padding 40px):
+   
+   Left side: Company logo/icon
+     - A blue eagle/phoenix icon with "CG" text below it
+     - For now, just use the text "CG" in a blue circle 
+       as a placeholder
+   
+   Right side: Disclaimer text
+     - Gray text, small font (12px), line-height 1.6
+     - Text: "NewBridge Final Expense (Policy Forms ICC24 
+       CGP1000-24, ICC24 CGP1001-24, and state variations 
+       thereof), Accelerated Death Benefit Rider for Terminal 
+       Illness (Policy Form ICC24 CGR3002-24) and Accidental 
+       Death Benefit Rider (Policy Form ICC24 CGR3000-24) are 
+       issued by Continental General Insurance Company. 
+       Continental General Insurance Company is a stock life, 
+       accident, and health insurance company existing under 
+       the laws of the State of Texas and is a licensed 
+       insurance carrier in 49 states, the District of 
+       Columbia, and the U.S. Virgin Islands. The premiums 
+       quoted here are non-binding and based on preliminary 
+       personal information. The final premium is determined 
+       during underwriting."
+
+DESIGN:
+   - Layout: flex row, logo on left (80px wide), text on right
+   - Logo area: light blue circle with "CG" in white, 50px diameter
+   - Text color: #666666
+   - Font size: 12px
+   - Background: white
+   - Padding: 40px horizontal, 30px vertical
+   - Max-width: same as form card container
+   - This footer should appear on EVERY page (Page 1, Page 2, etc.)
+   - Make it a reusable Footer component
+
+DO NOT modify any existing components or API endpoints.
+Just add the Footer component and include it in the page layout.
+
+=== 2026-08-19T18:44:12.473Z ===
+The Blue line in the footer, Next Button should be ablove that line, and keep the background color just slightly above the next button ,
+
+=== 2026-08-19T18:51:41.268Z ===
+Now we will build Page 2 : Quote builder page Fix the Page 1 layout — the blue background section is not 
+extending far enough.
+
+CURRENT PROBLEM:
+The blue gradient background stops above the form card. Below 
+the form card and around the Next button, the background is 
+white/gray. This looks wrong.
+
+CORRECT BEHAVIOR:
+The blue gradient background should extend from the hero heading 
+ALL THE WAY DOWN to the footer. The form card and Next button 
+should float ON TOP of the blue background. The blue section 
+should cover everything between the header and the footer.
+
+CHANGES NEEDED:
+
+1. BLUE BACKGROUND SECTION:
+   - The blue gradient section should NOT end after the heading
+   - It should be a full container that wraps:
+     - The hero heading
+     - The form card (floating on top with white bg)
+     - The Next button
+     - Any space between the form and footer
+   - min-height should fill the viewport between header and footer
+   - The blue should go all the way to the footer separator line
+
+2. FORM CARD:
+   - White background, rounded corners, shadow — same as now
+   - But it should visually float on top of the blue background
+   - Add more padding below the card (at least 40px) so the 
+     blue background is visible below it
+
+3. NEXT BUTTON:
+   - Should sit on the blue background (not white)
+   - Dark navy color (#1A237E), NOT gray
+   - Position: right-aligned, below the form card
+   - Padding: 12px 48px
+   - The button should always be dark navy — even when disabled,
+     just reduce opacity to 0.5 instead of turning it gray
+
+4. TOBACCO TOGGLE:
+   - When "No" is selected: dark navy background (#1A237E), 
+     white text — solid fill, not just a border
+   - When "Yes" is selected: same dark navy fill
+   - Unselected button: white background, gray border
+
+CSS FIX — the structure should be:
+
+  <Header />
+  <div class="blue-section">          ← blue gradient, extends full height
+    <h1>Get a life insurance...</h1>
+    <div class="form-card">           ← white card floating on blue
+      ...form fields...
+    </div>
+    <div class="next-button-area">    ← still on blue background
+      <button>Next</button>
+    </div>
+  </div>
+  <Footer />
+
+  .blue-section {
+    background: linear-gradient(135deg, #5B8DEF, #7BA4F7);
+    min-height: calc(100vh - 80px - 200px); /* viewport minus 
+    header minus footer */
+    padding-bottom: 60px;
+  }
+
+DO NOT modify any backend code.
+DO NOT modify Page 2.
+Only fix the CSS layout of Page 1.
+
+=== 2026-08-19T18:52:50.616Z ===
+Fix the Page 1 layout — the blue background section is not 
+extending far enough.
+
+CURRENT PROBLEM:
+The blue gradient background stops above the form card. Below 
+the form card and around the Next button, the background is 
+white/gray. This looks wrong.
+
+CORRECT BEHAVIOR:
+The blue gradient background should extend from the hero heading 
+ALL THE WAY DOWN to the footer. The form card and Next button 
+should float ON TOP of the blue background. The blue section 
+should cover everything between the header and the footer.
+
+CHANGES NEEDED:
+
+1. BLUE BACKGROUND SECTION:
+   - The blue gradient section should NOT end after the heading
+   - It should be a full container that wraps:
+     - The hero heading
+     - The form card (floating on top with white bg)
+     - The Next button
+     - Any space between the form and footer
+   - min-height should fill the viewport between header and footer
+   - The blue should go all the way to the footer separator line
+
+2. FORM CARD:
+   - White background, rounded corners, shadow — same as now
+   - But it should visually float on top of the blue background
+   - Add more padding below the card (at least 40px) so the 
+     blue background is visible below it
+
+3. NEXT BUTTON:
+   - Should sit on the blue background (not white)
+   - Dark navy color (#1A237E), NOT gray
+   - Position: right-aligned, below the form card
+   - Padding: 12px 48px
+   - The button should always be dark navy — even when disabled,
+     just reduce opacity to 0.5 instead of turning it gray
+
+4. TOBACCO TOGGLE:
+   - When "No" is selected: dark navy background (#1A237E), 
+     white text — solid fill, not just a border
+   - When "Yes" is selected: same dark navy fill
+   - Unselected button: white background, gray border
+
+CSS FIX — the structure should be:
+
+  <Header />
+  <div class="blue-section">          ← blue gradient, extends full height
+    <h1>Get a life insurance...</h1>
+    <div class="form-card">           ← white card floating on blue
+      ...form fields...
+    </div>
+    <div class="next-button-area">    ← still on blue background
+      <button>Next</button>
+    </div>
+  </div>
+  <Footer />
+
+  .blue-section {
+    background: linear-gradient(135deg, #5B8DEF, #7BA4F7);
+    min-height: calc(100vh - 80px - 200px); /* viewport minus 
+    header minus footer */
+    padding-bottom: 60px;
+  }
+
+DO NOT modify any backend code.
+DO NOT modify Page 2.
+Only fix the CSS layout of Page 1.
+
+=== 2026-08-19T19:04:23.627Z ===
+Fix Page 1 layout — two issues: blue background coverage and blue shade.
+
+PROBLEM 1 — Blue background stops too early:
+The blue background ends right after the form card. There is a 
+white gap between the form card and the Next button. The Next 
+button sits on white background instead of blue.
+
+The blue background must cover EVERYTHING between the header 
+and the footer — including the heading, the form card, the 
+Next button, and ALL spacing between them. No white gaps.
+
+PROBLEM 2 — Blue shade is wrong:
+The current blue is too bright/gradient. The correct blue is a 
+more solid, muted, slightly darker blue.
+
+FIX — replace the CSS for the blue section:
+
+  .blue-section {
+    background-color: #5B9BD5;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px 20px;
+  }
+
+  Key changes:
+  - Use solid background-color: #5B9BD5 (NOT a gradient)
+  - Use min-height: calc(100vh - 70px) so it fills the screen
+    minus the header height
+  - The footer should be OUTSIDE the blue section, not inside
+  - padding-bottom: 60px to give space after the Next button
+
+HTML STRUCTURE must be exactly:
+
+  <Header />                          ← white, fixed top
+  
+  <div class="blue-section">          ← solid blue, fills everything
+    <h1>Get a quote and pre-approval assessment</h1>
+    
+    <div class="form-card">           ← white card ON the blue
+      <div class="form-row">
+        <input "Legal First Name" />
+        <input "Legal Last Name" />
+      </div>
+      <div class="form-row">
+        <input "Date of Birth" />
+        <select "Gender" />
+      </div>
+      <input "Residence Zip Code" />
+      <div "Tobacco question" />
+    </div>
+    
+    <div class="next-button-wrapper"> ← STILL INSIDE blue-section
+      <button class="next-btn">Next</button>
+    </div>
+  </div>                              ← blue section ends HERE
+  
+  <Footer />                          ← white, OUTSIDE blue section
+
+  CRITICAL: The next-button-wrapper MUST be INSIDE the 
+  blue-section div, NOT outside it. This is the main bug — 
+  the Next button is currently placed outside the blue section.
+
+NEXT BUTTON CSS:
+  .next-button-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+  
+  .next-btn {
+    background-color: #1A237E;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 56px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+BLUE COLOR:
+  Do NOT use: linear-gradient(135deg, #5B8DEF, #7BA4F7)
+  USE: background-color: #5B9BD5 (solid, single color)
+  This is a muted medium blue — professional, not flashy.
+
+DO NOT modify any backend code.
+DO NOT modify Page 2.
+DO NOT modify the Footer component.
+Only fix the CSS and HTML structure of Page 1.
+
+=== 2026-08-19T19:17:35.237Z ===
+Build Page 2 — the Quote Builder page.
+
+This page appears after the user clicks "Next" on Page 1.
+It receives the applicant data and premiums from the 
+POST /api/quote/start response (stored in React state/context).
+
+REFERENCE: I am attaching a screenshot of the exact design to match.
+
+EXISTING APIs:
+  POST /api/quote/start → already called on Page 1, response stored
+  POST /api/quote/recalculate → call when coverage changes
+  POST /api/quote/save → call when user selects a rate class
+
+═══════════════════════════════════════════════════════
+PAGE LAYOUT
+═══════════════════════════════════════════════════════
+
+1. HEADER BAR (reuse Header component from Page 1):
+   - Same layout as Page 1
+   - Add applicant info next to logo area in header:
+     "Sneha Awhale / 56 / F" (name / age / gender initial)
+   - Application ID stays in center
+
+2. PAGE TITLE SECTION (white background):
+   - Dark blue horizontal line above
+   - Text: "Your Applicant's NewBridge Final Expense 
+     Insurance Quote"
+   - Centered, ~20px font, dark text
+   - Dark blue horizontal line below
+
+3. MAIN CONTENT — two columns:
+
+   LEFT COLUMN — Quote Builder card (white, rounded, shadow, ~60%):
+
+     a. Header row:
+        - Left: "Quote Builder" (bold, 20px)
+        - Right: "QUOTE BY" label with two toggle buttons:
+          [Coverage] [Monthly Premium]
+          Coverage = blue/selected, Monthly Premium = white/unselected
+          Monthly Premium button is disabled/grayed for now
+
+     b. Coverage Amount section:
+        - Label: "Amount" (gray, small, above the input)
+        - Input field: "$35,000" (large text, editable)
+        - User can type a new amount directly
+        - Validate: must be between $5,000-$50,000 
+          in $1,000 increments
+        - On change (debounce 300ms):
+          → Call POST /api/quote/recalculate
+          → Update all premiums below
+
+     c. Rate Class section:
+        - Right side of the amount area
+        - Label: "Rate Class" with "Build Chart" button
+          (outlined, small, right-aligned)
+        - Build Chart button: for now, no action — just visual
+        - Table header: "RATE CLASS" | "MONTHLY PREMIUM"
+        - Rows with radio buttons:
+
+          For NON-TOBACCO user:
+            ● Level Preferred      $97.03
+            ○ Level Non-Tobacco    $116.22
+            ○ Modified Non-Tobacco  N/A (grayed, not selectable)
+
+          For TOBACCO user:
+            ● Level Tobacco         $153.58
+            ○ Modified Tobacco      N/A (grayed, not selectable)
+
+        - First eligible rate class is pre-selected
+        - N/A rows: gray text, radio button disabled
+        - When user selects different rate class:
+          → Update Policy Total on the right
+          → Call POST /api/quote/save
+
+     d. Optional Riders section (below rate class, same card):
+        - Separator line
+        - "OPTIONAL RIDERS  0 of 1" header with collapse arrow (^)
+        - Collapsible section containing:
+          - Toggle switch (off by default) 
+          - "Accidental Death Benefit Rider" (bold)
+          - "Doubles the Death Benefit if the Insured dies 
+            by Accidental Death" (gray subtitle)
+        - Toggle is visual only for now — no backend
+
+   RIGHT COLUMN — Policy Total (~35%):
+
+     a. Top: "NewBridge™ | Final Expense" text/logo
+        (blue "NewBridge™" + gray "| Final Expense")
+
+     b. Policy Total card (light blue/gray background):
+        
+        - "POLICY TOTAL" badge (dark navy pill shape)
+        
+        - "TOTAL" label on left
+        - Monthly/Annual toggle on right:
+          [Monthly] [Annual]
+          Monthly = blue/selected, Annual = white
+        
+        - Large premium: "$97.03" (very large, bold, navy)
+          with ".03" in smaller font
+          "/ month" in gray after it
+        
+        - Below, with dotted line separator:
+          Coverage          $35,000.00
+          Rate class        Level Preferred
+          ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+          Base premium      $97.03 /mo (in blue)
+
+     c. Riders section (below Policy Total card):
+        - "RIDERS INCLUDED AT NO COST:" (bold, caps)
+        - ✓ Accelerated Death Benefit Rider for Terminal Illness
+        - Green checkmark icon
+
+4. FOOTER (reuse Footer component from Page 1)
+
+═══════════════════════════════════════════════════════
+INTERACTIONS
+═══════════════════════════════════════════════════════
+
+COVERAGE AMOUNT CHANGES (user types or adjusts):
+  1. Update displayed amount immediately
+  2. Debounce 300ms after user stops typing
+  3. Call POST /api/quote/recalculate:
+     { "application_id": "...", "coverage_amount": 25000 }
+  4. Update ALL rate class premiums in the table
+  5. Update Policy Total on right
+  6. Keep same rate class selected
+
+RATE CLASS SELECTION (user clicks radio button):
+  1. Update Policy Total immediately
+  2. Call POST /api/quote/save:
+     { "application_id": "...", "coverage_amount": 35000,
+       "selected_rate_class": "Level Non-Tobacco" }
+
+MONTHLY/ANNUAL TOGGLE:
+  1. Frontend only — no API call
+  2. Monthly: show monthly premium, display "/ month"
+  3. Annual: show monthly × 12, display "/ year"
+  4. Update both Policy Total AND rate class table amounts
+
+═══════════════════════════════════════════════════════
+DESIGN SPECIFICATIONS
+═══════════════════════════════════════════════════════
+
+Colors:
+  - Page background: #EBF0FA (light blue-gray)
+  - Cards: white, border-radius 8px, 
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08)
+  - Policy Total card background: #F0F4FF
+  - "POLICY TOTAL" badge: #1A237E white text, pill shape
+  - Selected toggle: #2962FF blue bg, white text
+  - Unselected toggle: white bg, gray border
+  - Large premium number: #1A237E (dark navy)
+  - N/A text: #AAAAAA
+  - Radio button active: #2962FF
+  - "Build Chart" button: white bg, gray border, rounded
+  - Base premium value: #2962FF (blue)
+  - Green checkmark: #4CAF50
+  - Dotted separator: 1px dotted #CCCCCC
+
+Typography:
+  - "Quote Builder" heading: 20px bold
+  - Coverage amount input: 22px bold
+  - Rate class names: 14px
+  - Premium amounts: 14px bold
+  - Policy Total large number: 42px bold
+  - Cents after decimal: 24px bold
+  - "/ month" text: 16px gray
+  - Coverage/Rate details: 14px
+  - Riders text: 13px
+
+Layout:
+  - Content max-width: 1100px centered
+  - Left column: 58%
+  - Right column: 38%
+  - Gap: 4%
+  - Card padding: 28px
+  - Mobile: stack vertically
+
+═══════════════════════════════════════════════════════
+DATA FLOW
+═══════════════════════════════════════════════════════
+
+On page load:
+  - Read from React context: applicant info + initial premiums
+    (set by Page 1 after POST /api/quote/start)
+  - If context empty AND localStorage has application_id:
+    → Call POST /api/quote/recalculate with default coverage
+  - If no context AND no localStorage → redirect to Page 1 (/)
+
+No initial API call needed if data exists in context.
+
+═══════════════════════════════════════════════════════
+
+Use Axios for API calls.
+Reuse Header and Footer components from Page 1.
+Route: /quote
+Use plain CSS — no Tailwind, no Material UI.
+DO NOT modify any backend code.
+DO NOT modify Page 1.
+
+=== 2026-08-19T19:38:18.397Z ===
+Fix Page 2 — header layout and add navigation buttons.
+
+TWO CHANGES NEEDED:
+
+═══════════════════════════════════════════════════════
+CHANGE 1: Fix the header layout
+═══════════════════════════════════════════════════════
+
+CURRENT (wrong):
+  NewBridge™    Sneha Awhale / 56 / M    ARCF26230S376    Product Guide  Contact Support  Agent
+                                         App ID Number
+
+The applicant name and Application ID are both in the center, 
+too close together and misaligned.
+
+CORRECT layout:
+  NewBridge™                    ARCF26230S376     Sneha Awhale / 56 / F     Product Guide  Contact Support  Agent
+                               Application ID Number
+
+  - "NewBridge™" — far left
+  - Application ID + "Application ID Number" — center-left area
+  - Applicant info "Sneha Awhale / 56 / F" — to the RIGHT of 
+    Application ID, before the buttons
+  - Product Guide, Contact Support, Agent — far right
+
+CSS for header:
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: white;
+    border-bottom: 1px solid #E0E0E0;
+  }
+  
+  .header-left { 
+    /* NewBridge logo */ 
+  }
+  
+  .header-center {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    /* Both app ID and applicant info sit here, 
+       slightly right of center */
+  }
+  
+  .header-right { 
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* Product Guide, Contact Support, Agent */ 
+  }
+
+═══════════════════════════════════════════════════════
+CHANGE 2: Add Back and Next buttons to Page 2
+═══════════════════════════════════════════════════════
+
+Add a navigation bar at the bottom of Page 2, BELOW the 
+Quote Builder and Policy Total sections, but ABOVE the footer.
+
+Layout:
+  ┌─────────────────────────────────────────────┐
+  │                                             │
+  │  [← Back]                          [Next →] │
+  │                                             │
+  └─────────────────────────────────────────────┘
+
+  - Back button: LEFT side
+    - Text: "Back" with ← arrow
+    - Style: white background, navy border, navy text
+    - On click: navigate back to Page 1 (/)
+    - Should preserve the same session/application_id
+
+  - Next button: RIGHT side
+    - Text: "Next" 
+    - Style: dark navy background (#1A237E), white text
+    - Only enabled when a rate class is selected
+    - On click: save the quote (POST /api/quote/save) 
+      then navigate to next step
+    - For now, since there's no Page 3 yet, just show 
+      an alert: "Quote saved successfully!"
+
+CSS:
+  .navigation-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+  
+  .back-btn {
+    background: white;
+    color: #1A237E;
+    border: 2px solid #1A237E;
+    border-radius: 8px;
+    padding: 12px 40px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .next-btn {
+    background: #1A237E;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 56px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+═══════════════════════════════════════════════════════
+
+DO NOT modify any backend code.
+DO NOT modify Page 1.
+DO NOT modify the Footer component.
+Only fix the header layout and add navigation buttons on Page 2.
+
+=== 2026-08-19T19:48:47.280Z ===
+Update the Quote page UI to match this design:
+
+1. Add a full-width blue hero banner directly below the top header bar — solid mid-blue background, with a large white "Quote" heading centered inside it, with generous vertical padding.
+
+2. In the top header, reorder the applicant info so it reads: name/age/gender first ("Sneha Awhale / 65 / M"), then the Application ID number below it, with "Application ID Number" as a small gray label underneath the ID.
+
+3. Restyle the three header buttons as matching pill-shaped buttons in a row, same height:
+   - "Product Guide": white background, blue border, blue text
+   - "Contact Support": light lavender/purple fill, navy text (not a solid dark blue button)
+   - Agent name: same light lavender pill, navy text, with a small circular arrow icon inside the pill on the right (replace the plain text + info icon)
+
+4. Make the main white content card overlap the blue banner — its top edge should rise up into the blue section, rounded corners, soft drop shadow, so it reads as a layered card floating over the banner rather than sitting flush on a flat background.
+
+5. Fix the double underline below "Your Applicant's NewBridge Final Expense Insurance Quote" — both lines should be solid dark navy, slightly thicker, and centered under the heading text rather than thin, gray, and full-width.
+
+6. Add a fixed footer bar at the bottom: white background, subtle top border/shadow, with "Back" as a plain blue text link on the left and "Next" as a solid dark navy rounded button on the right.
+
+Leave the Quote Builder panel content (Amount field, Rate Class table, Policy Total card, riders section) unchanged for now — I'll follow up with more changes to that section separately.
+
+=== 2026-08-19T20:04:31.626Z ===
+Let sdo the changes one by one , First like how you did in the second page about this This is actually the correct, standard behavior for a persistent bottom action bar (like a mobile
+  app's fixed toolbar or an e-commerce checkout bar) — it's designed to always float on top of
+  whatever's scrolled beneath it, not just near the end. The one thing that actually matters — the
+  Footer disclaimer never becoming permanently unreachable — is already verified fixed.  can you do the same for the fisrt page
+
+=== 2026-08-19T20:16:42.143Z ===
+Fix the header info section on Page 2.
+
+LAYOUT (left to right):
+  Sneha Awhale / 65 / M          ARCF26230S376
+                                  Application ID Number
+
+  - LEFT: Applicant info "Sneha Awhale / 65 / M"
+    - Color: dark navy (#1A237E)
+    - Font size: 14px
+    - Font weight: 400 (normal, NOT bold)
+
+  - RIGHT: Application ID and label stacked vertically
+    - "ARCF26230S376" 
+      - Color: dark navy (#1A237E)
+      - Font size: 14px
+      - Font weight: 400 (normal, NOT bold)
+    - "Application ID Number" below it
+      - Color: dark gray (#888888)
+      - Font size: 11px
+      - Font weight: 400 (normal)
+
+CSS:
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .applicant-info {
+    color: #1A237E;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .app-id-section {
+    text-align: right;
+  }
+
+  .app-id-value {
+    color: #1A237E;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .app-id-label {
+    color: #888888;
+    font-size: 11px;
+    font-weight: 400;
+  }
+
+Remove any bold styling from both elements.
+DO NOT modify anything else.
+
+=== 2026-08-19T20:20:57.371Z ===
+Fix the title section on Page 2.
+
+CURRENT:
+  ────────────────────────────── (dark line above)
+  Your Applicant's NewBridge Final Expense Insurance Quote
+  ────────────────────────────── (dark line below)
+
+CORRECT:
+  Your Applicant's NewBridge Final Expense Insurance Quote
+  ─────────────────────────────────────── (single line below, lighter, longer)
+
+CHANGES:
+  1. REMOVE the line ABOVE the title — delete it completely
+  2. KEEP only the line BELOW the title
+  3. Make the line below:
+     - Color: #B0BEC5 (light blue-gray, NOT dark)
+     - Width: 80% of the page width (longer than current)
+     - Thickness: 1.5px
+     - Centered
+
+CSS:
+  .quote-title-section {
+    text-align: center;
+    padding: 20px 0;
+    background: white;
+  }
+
+  .quote-title {
+    font-size: 20px;
+    color: #333333;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+
+  .quote-title-section::before {
+    display: none;   /* REMOVE top line */
+  }
+
+  .quote-title-section::after {
+    content: "";
+    display: block;
+    width: 80%;
+    height: 1.5px;
+    background-color: #B0BEC5;
+    margin: 0 auto;
+  }
+
+If the lines are not using ::before and ::after, find however 
+they are implemented (could be <hr>, <div>, or border-top/bottom) 
+and remove the top one, keep only the bottom one with the 
+lighter color and wider width.
+
+DO NOT modify anything else.
+
+=== 2026-08-19T20:29:09.948Z ===
+Fix Page 2 — three layout and styling changes needed.
+
+REFERENCE: I am attaching two screenshots. Image 1 is the 
+TARGET design. Image 2 is my CURRENT design. Fix my current 
+to match the target.
+
+═══════════════════════════════════════════════════════
+CHANGE 1: Title underline color
+═══════════════════════════════════════════════════════
+
+CURRENT: Light gray thin line below the title
+TARGET: Bold bright blue line below the title
+
+Fix:
+  - The line below "Your Applicant's NewBridge Final Expense 
+    Insurance Quote" should be:
+    - Color: #2962FF (bright blue, same as the header bar blue)
+    - Thickness: 2.5px
+    - Width: 90% of the container
+    - Centered
+
+═══════════════════════════════════════════════════════
+CHANGE 2: Rate Class table position — move it next to Amount
+═══════════════════════════════════════════════════════
+
+CURRENT: 
+  Amount field on the left, full width
+  Rate Class table BELOW the amount field, full width
+  
+  ┌──────────────────────────────────┐
+  │ Amount: $35,000                  │
+  │                                  │
+  │ RATE CLASS        MONTHLY PREMIUM│
+  │ Level Preferred   $164.89        │
+  │ Level Non-Tobacco $196.22        │
+  └──────────────────────────────────┘
+
+TARGET:
+  Amount field on LEFT side, Rate Class table on RIGHT side,
+  SAME ROW — side by side
+  
+  ┌──────────────────────────────────┐
+  │ Amount          Rate Class       │
+  │ ┌──────────┐   ┌──────────────┐ │
+  │ │ $35,000  │   │Build Chart   │ │
+  │ └──────────┘   │              │ │
+  │                │RATE  MONTHLY │ │
+  │                │CLASS PREMIUM │ │
+  │                │Lvl P  $142.65│ │
+  │                │Lvl NT $169.96│ │
+  │                │Mod NT  N/A   │ │
+  │                └──────────────┘ │
+  └──────────────────────────────────┘
+
+CSS for the Quote Builder card internal layout:
+
+  .quote-builder-content {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .amount-section {
+    flex: 1;
+  }
+
+  .rate-class-section {
+    flex: 1;
+  }
+
+The Amount input and the Rate Class table should sit 
+SIDE BY SIDE inside the Quote Builder card, not stacked.
+
+═══════════════════════════════════════════════════════
+CHANGE 3: Background color extends down
+═══════════════════════════════════════════════════════
+
+CURRENT: The light blue/gray page background stops above the 
+Back/Next buttons. There is white space below.
+
+TARGET: The page background color (#EBF0FA light blue-gray) 
+should extend all the way down to the footer. The Back and 
+Next buttons should sit ON the colored background, not on white.
+
+Fix:
+  - The main content wrapper that has background: #EBF0FA 
+    should have min-height: calc(100vh - 70px)
+  - The Back/Next navigation bar should be INSIDE this 
+    colored wrapper, not outside
+  - Only the Footer sits below on white background
+
+Structure:
+  <Header />
+  <div class="page-content">        ← background: #EBF0FA
+    <div class="blue-hero">Quote</div>
+    <div class="quote-section">
+      Title + line
+      Quote Builder + Policy Total
+      Riders
+    </div>
+    <div class="navigation-bar">    ← INSIDE page-content
+      Back          Next
+    </div>
+  </div>                            ← colored bg ends here
+  <Footer />
+
+═══════════════════════════════════════════════════════
+
+DO NOT modify any backend code.
+DO NOT modify Page 1.
+DO NOT modify the Footer component.
+
+=== 2026-08-19T20:42:24.253Z ===
+Fix Page 2 — multiple styling refinements needed.
+
+REFERENCE: Comparing my current page to the target design.
+
+═══════════════════════════════════════════════════════
+CHANGE 1: Title section spacing and colors
+═══════════════════════════════════════════════════════
+
+- Reduce gap between "Your Applicant's NewBridge Final 
+  Expense Insurance Quote" text and the blue line below it
+  - Current: too much space
+  - Fix: margin-bottom on title text = 8px
+  
+- Title text color: make it darker
+  - Current: gray-ish
+  - Fix: color: #333333 (near black)
+
+- Blue line color: make it slightly darker
+  - Current: bright blue
+  - Fix: color: #1A47B8 (deeper royal blue)
+  - Thickness: 2px
+
+═══════════════════════════════════════════════════════
+CHANGE 2: Amount field and Quote By alignment
+═══════════════════════════════════════════════════════
+
+CURRENT (wrong):
+  Quote Builder          QUOTE BY [Coverage] [Monthly Premium]
+  
+  Amount
+  ┌─────────────────────────────┐   Rate Class    Build Chart
+  │ $35,000                     │   
+  └─────────────────────────────┘   RATE CLASS   MONTHLY PREMIUM
+                                    Level Preferred    $142.65
+
+  Problem: Amount field is too wide, pushing "QUOTE BY" toggle 
+  too far right. The alignment looks awkward.
+
+TARGET:
+  Quote Builder                QUOTE BY [Coverage] [Monthly Premium]
+  
+  Amount              Rate Class                      Build Chart
+  ┌──────────────┐    ┌──────────────────────────────────────────┐
+  │ $35,000      │    │ RATE CLASS            MONTHLY PREMIUM    │
+  └──────────────┘    │ ● Level Preferred           $142.65     │
+                      │ ○ Level Non-Tobacco         $169.96     │
+                      │ ○ Modified Non-Tobacco        N/A       │
+                      └──────────────────────────────────────────┘
+
+  Fix:
+  - Amount section width: 35% (NOT 50%)
+  - Rate Class section width: 60%
+  - "QUOTE BY" toggle should align with the right edge of 
+    the Rate Class section
+  - "Quote Builder" text stays left-aligned
+  - "QUOTE BY [Coverage] [Monthly Premium]" sits on the SAME 
+    LINE as "Quote Builder", right-aligned
+
+CSS:
+  .quote-builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .quote-builder-content {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .amount-section {
+    flex: 0 0 35%;
+  }
+
+  .rate-class-section {
+    flex: 0 0 60%;
+  }
+
+═══════════════════════════════════════════════════════
+CHANGE 3: Font improvements to match target
+═══════════════════════════════════════════════════════
+
+a. "Quote Builder" heading:
+   - Font size: 22px
+   - Font weight: 700 (bold)
+   - Color: #1A1A1A (very dark, near black)
+
+b. "QUOTE BY" label:
+   - Font size: 12px
+   - Font weight: 500
+   - Color: #888888 (gray)
+   - Text-transform: uppercase
+   - Letter-spacing: 0.5px
+
+c. [Coverage] [Monthly Premium] toggle buttons:
+   - Font size: 13px
+   - Selected (Coverage): 
+     background: #2962FF, color: white, border-radius: 4px
+   - Unselected (Monthly Premium): 
+     background: white, color: #666666, border: 1px solid #CCCCCC
+
+d. "Amount" label:
+   - Font size: 13px
+   - Color: #888888
+   - Font weight: 400
+
+e. Amount input "$35,000":
+   - Font size: 22px
+   - Font weight: 600
+   - Color: #1A1A1A
+
+f. "Rate Class" label:
+   - Font size: 13px
+   - Color: #888888
+   - Font weight: 400
+
+g. "Build Chart" button:
+   - Font size: 12px
+   - Color: #666666
+   - Border: 1px solid #CCCCCC
+   - Background: white
+   - Border-radius: 4px
+   - Padding: 4px 12px
+
+h. "RATE CLASS" and "MONTHLY PREMIUM" table headers:
+   - Font size: 11px
+   - Font weight: 600
+   - Color: #666666
+   - Text-transform: uppercase
+   - Letter-spacing: 0.5px
+
+i. Rate class names (Level Preferred, Level Non-Tobacco):
+   - Font size: 14px
+   - Font weight: 500
+   - Color: #1A1A1A
+   - Selected row: font-weight: 600
+
+j. Premium values ($142.65):
+   - Font size: 14px
+   - Font weight: 600
+   - Color: #1A1A1A
+
+k. N/A text:
+   - Font size: 14px
+   - Color: #AAAAAA
+   - Font weight: 400
+
+═══════════════════════════════════════════════════════
+
+DO NOT modify any backend code.
+DO NOT modify Page 1.
+DO NOT modify the Policy Total section or Footer.
+Only fix the title section, amount/rate class layout, and fonts.
+
+=== 2026-08-19T20:58:48.403Z ===
+Fix Page 2 bottom section layout.
+
+CORRECT LAYOUT (top to bottom):
+
+  ┌──────────────────────────────┐
+  │ Optional Riders              │ ← blue bg (#EBF0FA)
+  │ Riders Included at No Cost   │ ← blue bg
+  │                              │ ← blue bg (padding)
+  │          ╰──────────────╯    │ ← blue bg rounded bottom
+  └──────────────────────────────┘
+  ─── thin gray separator ──────   ← LINE 1 (between blue and white)
+                                    
+  Back                      Next   ← WHITE background
+                                    
+  ─── thin gray separator ──────   ← LINE 2 (between buttons and footer)
+  
+  CG 🦅  disclaimer text          ← Footer (white bg)
+
+CHANGES:
+
+1. Blue background extends down with padding and rounded 
+   bottom corners — this is already working, keep it.
+
+2. ADD a thin separator line ABOVE the Back/Next buttons:
+   - Full width
+   - Color: #D0D5DD
+   - Thickness: 1px
+   - This line sits between the blue section bottom 
+     and the Back/Next area
+
+3. Back/Next buttons on WHITE background — already working.
+
+4. KEEP the existing separator line BELOW the Back/Next 
+   buttons (above the footer) — already working.
+
+HTML structure:
+  <div class="page-content">           ← blue bg, rounded bottom
+    ...all quote content...
+  </div>
+
+  <hr class="section-separator" />     ← LINE 1 (NEW - add this)
+
+  <div class="navigation-bar">         ← white bg
+    <button>← Back</button>
+    <button>Next</button>
+  </div>
+
+  <hr class="section-separator" />     ← LINE 2 (existing)
+
+  <Footer />
+
+CSS:
+  .section-separator {
+    border: none;
+    border-top: 1px solid #D0D5DD;
+    margin: 0;
+    width: 100%;
+  }
+
+Just ADD one separator line above the navigation bar.
+DO NOT modify anything else.
+
+=== 2026-08-19T21:05:20.487Z ===
+Fix Page 2 background colors.
+
+TWO CHANGES:
+
+1. REMOVE the rounded bottom corners from the blue section.
+   The blue background (#EBF0FA) should extend all the way 
+   down to Line 1 (the separator above Back/Next) with a 
+   FLAT edge, no curve, no gap.
+
+   Change:
+     border-radius: 0 0 24px 24px  →  border-radius: 0
+   
+   The blue should go edge-to-edge right up to the separator line.
+
+2. The area between Line 1 and Line 2 (where Back and Next 
+   buttons are) must be WHITE background. This is already 
+   white — just make sure it stays white.
+
+RESULT:
+  ┌──────────────────────────────┐
+  │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│ ← blue bg
+  │▓▓ Content, riders          ▓▓│ ← blue bg
+  │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│ ← blue bg FLAT edge
+  ──────────────────────────────── ← Line 1
+  │  Back                 Next  │ ← WHITE bg
+  ──────────────────────────────── ← Line 2
+  │  CG Footer disclaimer      │ ← WHITE bg
+
+CSS fix:
+  .page-content {
+    background-color: #EBF0FA;
+    padding-bottom: 40px;
+    border-radius: 0;          /* REMOVE rounded corners */
+  }
+
+DO NOT modify anything else. Just remove the border-radius.
+
+=== 2026-08-19T21:10:46.264Z ===
+Fix the Amount input field styling on Page 2.
+
+CURRENT: 
+  - Sharp/square corners
+  - Regular border
+  - Font too large
+
+TARGET:
+  - Rounded/curved corners
+  - Blue highlighted border
+  - Smaller font size
+
+CSS fix for the Amount input:
+
+  .amount-input {
+    border: 2px solid #5B9BD5;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1A1A1A;
+    background: white;
+    outline: none;
+    width: 100%;
+  }
+
+  .amount-input:focus {
+    border-color: #2962FF;
+    box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.1);
+  }
+
+Changes:
+  - border-radius: 25px (fully rounded/pill shape)
+  - border: 2px solid #5B9BD5 (blue highlight)
+  - font-size: 18px (reduced from current)
+  - padding: 12px 20px (comfortable spacing)
+
+DO NOT modify anything else.
+
+=== 2026-08-19T21:13:42.540Z ===
+Fix header alignment on Page 2.
+
+CURRENT:
+  NewBridge™     Sneha Awhale / 65 / F     ARCF26230S375     Product Guide  Contact Support  Agent
+                                            Application ID
+  
+  ← too much gap between name/ID and buttons →
+
+TARGET:
+  NewBridge™                          Sneha Awhale / 65 / F  ARCF26230S375  Product Guide  Contact Support  Agent
+                                                              Application ID
+
+  The name, age, gender AND application ID should be pushed 
+  to the RIGHT, sitting close to the Product Guide button.
+  Large empty space should be on the LEFT (between logo and name).
+
+CSS fix:
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+  }
+
+  .header-left {
+    /* NewBridge logo — stays far left */
+    flex: 0 0 auto;
+  }
+
+  .header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    /* This group contains: name, app ID, and all buttons */
+    /* Everything packed together on the right side */
+  }
+
+Move the applicant info and application ID INTO the same 
+container as the Product Guide, Contact Support, and Agent 
+buttons. They should all sit together on the right side of 
+the header with consistent spacing between them.
+
+DO NOT modify anything else.
+
+=== 2026-08-19T21:27:29.182Z ===
+Fix Page 2 background color.
+
+CURRENT:
+  ┌──────────────────────────────┐
+  │▓▓▓▓▓ "Quote" heading ▓▓▓▓▓▓▓│ ← darker blue (#5B9BD5)
+  ├──────────────────────────────┤
+  │░░░ Content area ░░░░░░░░░░░░│ ← lighter blue (#EBF0FA)
+  │░░░ Quote Builder ░░░░░░░░░░░│ ← lighter blue
+  │░░░ Riders ░░░░░░░░░░░░░░░░░░│ ← lighter blue
+  └──────────────────────────────┘
+  ─── Line 1 ───────────────────
+  Back                      Next
+  ─── Line 2 ───────────────────
+  Footer
+
+TARGET:
+  ┌──────────────────────────────┐
+  │▓▓▓▓▓ "Quote" heading ▓▓▓▓▓▓▓│ ← darker blue
+  │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│ ← SAME darker blue
+  │▓▓▓ Content area ▓▓▓▓▓▓▓▓▓▓▓▓│ ← SAME darker blue
+  │▓▓▓ Quote Builder ▓▓▓▓▓▓▓▓▓▓▓│ ← SAME darker blue
+  │▓▓▓ Riders ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│ ← SAME darker blue
+  │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│ ← SAME darker blue all the way
+  └──────────────────────────────┘
+  ─── Line 1 ───────────────────
+  Back                      Next
+  ─── Line 2 ───────────────────
+  Footer
+
+CHANGE:
+  Make the ENTIRE page content area — from the "Quote" hero 
+  heading all the way down to Line 1 — use ONE single 
+  background color: the same darker blue as the "Quote" 
+  hero section.
+
+  Remove the lighter blue (#EBF0FA) completely. Replace it 
+  with the same blue used behind the "Quote" heading.
+
+  If the "Quote" hero is a separate div, merge both into one 
+  background OR apply the same color to both.
+
+CSS:
+  .page-content {
+    background-color: #5B9BD5;
+    /* Same color as the Quote hero section */
+    /* ONE color from top to Line 1 */
+  }
+
+  /* Remove or override any separate lighter background 
+     on the content area below the hero */
+
+  /* The white cards (Quote Builder, Policy Total, Riders) 
+     will stand out nicely against this darker blue */
+
+DO NOT modify anything else. Just unify the background color.
+
+=== 2026-08-19T21:33:34.823Z ===
+Small styling tweaks on Page 2.
+
+CHANGE 1: Cards — reduce border radius
+  All white cards (Quote Builder, Policy Total, Riders, 
+  Riders Included) — reduce the curve:
+  - Current: border-radius too rounded
+  - Fix: border-radius: 4px (barely curved, almost square)
+
+CHANGE 2: Amount input field — make it smaller
+  - Reduce width by ~15% (make it narrower)
+  - Reduce height slightly: padding: 10px 14px (from 12px 16px)
+  - Font size: 16px (from 18px)
+
+CHANGE 3: Amount input field — slightly longer
+  - Increase max-width slightly
+  - Current: too short
+  - Fix: width: 90% of its container (from current)
+
+CHANGE 4: "Quote" hero heading — less bold
+  - Current: too heavy/bold
+  - Fix: font-weight: 400 (regular, not bold)
+  - Keep the same size and color, just reduce the weight
+
+CSS:
+  /* Cards */
+  .quote-builder-card,
+  .policy-total-card,
+  .riders-card,
+  .riders-included-card {
+    border-radius: 4px;
+  }
+
+  /* Amount field */
+  .amount-input {
+    padding: 10px 14px;
+    font-size: 16px;
+    width: 90%;
+  }
+
+  /* Quote heading */
+  .quote-hero h1,
+  .quote-hero-title {
+    font-weight: 400;
+  }
+
+DO NOT modify anything else.
+
+=== 2026-08-19T21:42:19.522Z ===
+Fix Policy Total section spacing on Page 2.
+
+THREE CHANGES:
+
+1. "POLICY TOTAL" badge — move more to the left corner
+   - Current: left: 16px
+   - Fix: left: 0px (flush with the card edge)
+
+2. Reduce gap between "POLICY TOTAL" badge and "TOTAL" text
+   - Current: too much space between the badge and the 
+     TOTAL / Monthly / Annual row
+   - Fix: reduce padding-top inside the card from current 
+     value to 20px
+   - The "TOTAL" row should sit closer to the badge
+
+3. Increase gap between "NewBridge™ | Final Expense" logo 
+   and the Policy Total card
+   - Current: logo is too close to the card
+   - Fix: margin-bottom: 32px on the logo section
+     (increase space between logo and the card below it)
+
+CSS:
+  .policy-total-badge {
+    left: 0px;           /* flush with card left edge */
+  }
+
+  .policy-total-card {
+    padding-top: 20px;   /* reduce top padding inside card */
+  }
+
+  .policy-total-logo {
+    margin-bottom: 32px; /* more space below logo */
+  }
+
+DO NOT modify anything else.
+
+=== 2026-08-19T21:49:32.402Z ===
+Fix Page 1 — multiple styling and layout changes to match target design.
+
+REFERENCE: I am attaching the target screenshot.
+
+═══════════════════════════════════════════════════════
+CHANGE 1: Hero heading font size
+═══════════════════════════════════════════════════════
+
+"Get a quote and pre-approval assessment"
+  - Current: too small
+  - Fix: font-size: 42px (much larger)
+  - Font-weight: 300 (light)
+  - Color: white
+  - Text-align: center
+
+═══════════════════════════════════════════════════════
+CHANGE 2: Input labels — floating above the field
+═══════════════════════════════════════════════════════
+
+CURRENT:
+  ┌──────────────────┐
+  │ First Name       │  ← placeholder text inside
+  └──────────────────┘
+
+TARGET:
+  ┌─ Legal First Name * ─┐
+  │ First name            │  ← label sits ON the top border
+  └───────────────────────┘     with a white background behind it
+
+All input fields should use the "outlined" floating label 
+style where:
+  - The label text sits ON the top border of the input
+  - The label has a white background behind it to "cut" 
+    the border line
+  - An asterisk (*) appears after the label in red/blue
+  - Placeholder text inside the field is light gray
+
+Labels to update:
+  - "Legal First Name *"
+  - "Legal Last Name *"
+  - "Date of Birth *"
+  - "Gender (At Birth) *"
+  - "Residence Zip Code *"
+
+CSS for floating label:
+  .form-group {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .floating-label {
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background: white;
+    padding: 0 6px;
+    font-size: 13px;
+    color: #1A47B8;
+    font-weight: 400;
+  }
+
+  .floating-label .asterisk {
+    color: #1A47B8;
+  }
+
+  .form-input {
+    border: 1.5px solid #1A47B8;
+    border-radius: 4px;
+    padding: 16px 14px;
+    font-size: 16px;
+    width: 100%;
+    color: #1A1A1A;
+  }
+
+═══════════════════════════════════════════════════════
+CHANGE 3: Date of Birth and Gender side by side
+═══════════════════════════════════════════════════════
+
+CURRENT: Date of Birth full width, Gender below it
+TARGET: Date of Birth (left, 50%) and Gender (right, 50%) 
+        on the SAME row — same as First Name / Last Name
+
+  ┌─ Date of Birth * ──┐ ┌─ Gender (At Birth) * ─┐
+  │ MM/DD/YYYY          │ │ Select            ▼   │
+  └─────────────────────┘ └───────────────────────┘
+
+CSS:
+  .form-row {
+    display: flex;
+    gap: 16px;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+
+═══════════════════════════════════════════════════════
+CHANGE 4: Replace "State of Residence" with "Residence Zip Code"
+═══════════════════════════════════════════════════════
+
+CURRENT: State of Residence dropdown
+TARGET: Residence Zip Code text input
+
+  - Remove the State of Residence dropdown
+  - Replace with a text input field:
+    - Label: "Residence Zip Code *"
+    - Placeholder: "00000"
+    - Input type: text
+    - Max length: 5
+    - Validation: must be 5 digits
+    - Full width (same as current State field)
+  
+  - Below the zip code field, show the state auto-detected:
+    - Text: "OH — Ohio (from ZIP)"
+    - Color: #5B9BD5 for "OH — Ohio", gray for "(from ZIP)"
+    - Font size: 12px
+    - Shows after user types 5 digits
+
+  - For now, hardcode a simple zip-to-state lookup or just 
+    display the text statically. We can add a real API later.
+
+═══════════════════════════════════════════════════════
+CHANGE 5: Tobacco Yes/No buttons — remove gap between them
+═══════════════════════════════════════════════════════
+
+CURRENT: 
+  ┌─────────┐  ┌─────────┐  ← gap between buttons
+  │   Yes   │  │   No    │
+  └─────────┘  └─────────┘
+
+TARGET:
+  ┌─────────┬─────────┐      ← no gap, buttons touch each other
+  │   Yes   │   No    │
+  └─────────┴─────────┘
+
+CSS fix:
+  .tobacco-buttons {
+    display: flex;
+    gap: 0;              /* NO gap */
+    width: 100%;
+  }
+
+  .tobacco-btn {
+    flex: 1;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid #D0D5DD;
+    background: white;
+    color: #1A1A1A;
+    cursor: pointer;
+  }
+
+  .tobacco-btn:first-child {
+    border-radius: 4px 0 0 4px;    /* rounded left side only */
+    border-right: none;             /* remove double border */
+  }
+
+  .tobacco-btn:last-child {
+    border-radius: 0 4px 4px 0;    /* rounded right side only */
+  }
+
+  .tobacco-btn.selected {
+    background: #1A237E;
+    color: white;
+    border-color: #1A237E;
+  }
+
+═══════════════════════════════════════════════════════
+
+Also update the API call — when submitting Page 1, send 
+"zip_code" instead of "state". The backend should accept 
+zip_code in the POST /api/quote/start endpoint. Add zip_code 
+to the quotes table if not already there.
+
+DO NOT modify Page 2.
+DO NOT modify the Footer component.
+
+=== 2026-08-19T22:13:00.251Z ===
+Fix Page 1 — Next button color and sticky positioning.
+
+CHANGE 1: Next button color
+  - Make it same dark navy as Page 2
+  - Background: #1A237E
+  - This should already be the case — if it looks different,
+    ensure both pages use the exact same color
+
+CHANGE 2: Line 1 + Next button — always visible (sticky bottom)
+  
+  CURRENT: The Next button is only visible when user scrolls 
+  all the way down. On a long form, user can't see it.
+
+  TARGET: The separator line (Line 1) and the Next button 
+  area should be FIXED at the bottom of the viewport. 
+  Always visible regardless of scroll position.
+
+  ┌──────────────────────────────┐
+  │ Header                       │
+  ├──────────────────────────────┤
+  │ Blue section                 │
+  │ Form card                    │  ← scrollable content
+  │ ...                          │
+  │                              │
+  ├──────────────────────────────┤
+  │─── Line 1 ──────────────────│  ← FIXED at bottom
+  │                    [Next]   │  ← FIXED at bottom, always visible
+  └──────────────────────────────┘
+
+CSS:
+  .sticky-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .sticky-bottom .section-separator {
+    border: none;
+    border-top: 1px solid #D0D5DD;
+    margin: 0;
+    width: 100%;
+  }
+
+  .sticky-bottom .navigation-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* Add padding at the bottom of the page content 
+     so the footer is not hidden behind the sticky bar */
+  .page-wrapper {
+    padding-bottom: 80px;
+  }
+
+HTML structure:
+  <Header />
+  <div class="page-wrapper">
+    <div class="blue-section">
+      ...heading, form card...
+    </div>
+    <Footer />
+  </div>
+
+  <div class="sticky-bottom">         ← FIXED at viewport bottom
+    <hr class="section-separator" />
+    <div class="navigation-bar">
+      <button class="next-btn">Next</button>
+    </div>
+  </div>
+
+Apply the same sticky behavior to Page 2's Back/Next buttons 
+as well so both pages are consistent.
+
+DO NOT modify any backend code.
+DO NOT modify the Footer component.
+
+=== 2026-08-19T22:18:49.322Z ===
+Fix the sticky bottom section — include the footer disclaimer 
+inside it.
+
+CURRENT:
+  ┌──────────────────────────────┐
+  │ Scrollable content           │
+  │ ...                          │
+  └──────────────────────────────┘
+  ┌──────────────────────────────┐ ← sticky fixed bottom
+  │─── Line 1 ──────────────────│
+  │                    [Next]   │
+  └──────────────────────────────┘
+  
+  Footer is hidden below, only visible when scrolled all the way
+
+TARGET:
+  ┌──────────────────────────────┐
+  │ Scrollable content           │
+  │ ...                          │
+  └──────────────────────────────┘
+  ┌──────────────────────────────┐ ← sticky fixed bottom
+  │─── Line 1 ──────────────────│
+  │                    [Next]   │
+  │─── Line 2 ──────────────────│
+  │ CG 🦅  disclaimer text      │
+  └──────────────────────────────┘
+
+  The ENTIRE bottom section — Line 1, Next button, Line 2, 
+  and the CG Footer disclaimer — should all be FIXED at the 
+  bottom of the viewport together as one sticky block.
+
+CHANGES:
+
+1. Move the Footer component INSIDE the sticky-bottom div
+2. Add Line 2 between the Next button and the Footer
+
+HTML structure:
+  <div class="page-wrapper">
+    <Header />
+    <div class="blue-section">
+      ...heading, form card...
+    </div>
+  </div>
+
+  <div class="sticky-bottom">
+    <hr class="section-separator" />    ← Line 1
+    <div class="navigation-bar">
+      <button class="next-btn">Next</button>
+    </div>
+    <hr class="section-separator" />    ← Line 2
+    <Footer />                          ← inside sticky
+  </div>
+
+CSS:
+  .sticky-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+
+  /* Increase bottom padding on page content so nothing 
+     is hidden behind the taller sticky section */
+  .page-wrapper {
+    padding-bottom: 250px;
+  }
+
+Apply this same change to BOTH Page 1 and Page 2.
+On Page 2, the sticky section has Back + Next buttons 
+instead of just Next.
+
+DO NOT modify any backend code.
+
+=== 2026-08-19T22:22:35.531Z ===
+Fix the sticky bottom section — remove Footer from sticky.
+
+CURRENT:
+  ┌──────────────────────────────┐ ← sticky
+  │─── Line 1 ──────────────────│
+  │                    [Next]   │
+  │─── Line 2 ──────────────────│
+  │ CG 🦅  disclaimer text      │ ← also sticky (WRONG)
+  └──────────────────────────────┘
+
+TARGET:
+  ┌──────────────────────────────┐ ← sticky (fixed at bottom)
+  │─── Line 1 ──────────────────│
+  │                    [Next]   │
+  └──────────────────────────────┘
+  
+  User scrolls all the way down to see:
+  │─── Line 2 ──────────────────│ ← NOT sticky, part of page flow
+  │ CG 🦅  disclaimer text      │ ← NOT sticky, only visible on scroll
+  
+
+The sticky section should ONLY contain Line 1 and the 
+Next button. The Footer stays in the normal page flow — 
+user has to scroll down to see it.
+
+HTML structure:
+
+  <div class="page-wrapper">
+    <Header />
+    <div class="blue-section">
+      ...heading, form card...
+    </div>
+
+    <hr class="section-separator" />    ← Line 2 (normal flow)
+    <Footer />                          ← normal flow, scroll to see
+  </div>
+
+  <div class="sticky-bottom">          ← ONLY this is fixed
+    <hr class="section-separator" />    ← Line 1
+    <div class="navigation-bar">
+      <button class="next-btn">Next</button>
+    </div>
+  </div>
+
+CSS:
+  .sticky-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .page-wrapper {
+    padding-bottom: 100px;
+  }
+
+Apply to BOTH Page 1 and Page 2.
+DO NOT modify anything else.
+
+=== 2026-08-19T22:32:29.124Z ===
+can you undo the recent changes done on page two (on footer )
+
+=== 2026-08-19T22:39:52.099Z ===
+Fix Page 1 and Page 2 bottom section.
+
+BEHAVIOR:
+The Line 1 + Next button should STICK to the bottom of the 
+screen while scrolling. BUT once the user scrolls far enough 
+to reach Line 2 + Footer, the sticky behavior stops and 
+everything flows naturally in order:
+
+  Line 1
+  Next button
+  Line 2
+  Footer
+
+It should NOT float on top of the footer. It should "land" 
+in its natural position once the footer is reached.
+
+This is called "position: sticky" (NOT "position: fixed").
+
+HTML structure:
+
+  <Header />
+
+  <div class="page-content">
+    <div class="blue-section">
+      ...heading, form/quote content...
+    </div>
+
+    <div class="sticky-nav">              ← sticky, not fixed
+      <hr class="section-separator" />    ← Line 1
+      <div class="navigation-bar">
+        <button class="next-btn">Next</button>
+      </div>
+    </div>
+
+    <hr class="section-separator" />      ← Line 2
+    <Footer />
+  </div>
+
+CSS:
+  .sticky-nav {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .section-separator {
+    border: none;
+    border-top: 1px solid #D0D5DD;
+    margin: 0;
+    width: 100%;
+  }
+
+  .navigation-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+KEY DIFFERENCE:
+  - position: STICKY (not fixed)
+  - sticky means: stick to bottom while scrolling, but once 
+    the parent container ends, it flows naturally with the 
+    page — it does NOT overlap the footer
+  - The sticky-nav div must be INSIDE the same parent as 
+    the footer for this to work correctly
+
+RESULT:
+  While scrolling (content is long):
+    → Line 1 + Next stuck at bottom of viewport
+  
+  When user reaches the bottom:
+    → Line 1 + Next unsticks
+    → Line 2 appears below it
+    → Footer appears below Line 2
+    → Everything flows naturally, nothing overlaps
+
+FOR PAGE 2:
+  Same structure, navigation-bar has both buttons:
+    <button class="back-btn">← Back</button>
+    <button class="next-btn">Next</button>
+
+Apply to BOTH pages.
+DO NOT modify any backend code.
+DO NOT modify the Footer component.
+
+=== 2026-08-19T22:43:33.587Z ===
+Fix Footer component — make disclaimer text full width.
+
+CURRENT: The footer text is narrow/compact, centered with 
+large margins on both sides.
+
+TARGET: The text should span almost the entire page width 
+edge to edge, with only small padding on left and right.
+
+CSS fix:
+
+  .footer-content {
+    max-width: 100%;
+    padding: 30px 60px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .footer-logo {
+    flex: 0 0 80px;
+  }
+
+  .footer-text {
+    flex: 1;
+    font-size: 12px;
+    color: #666666;
+    line-height: 1.7;
+  }
+
+Remove any max-width constraint like max-width: 1100px or 
+max-width: 1300px on the footer content container. Let it 
+use the full page width with just 60px padding on each side.
+
+This is a shared component — change applies to both pages.
+DO NOT modify anything else.
+
+=== 2026-08-19T22:46:12.917Z ===
+Fix Next button color on both pages.
+
+CURRENT: Dark navy (#1B1F5E) — too dark
+TARGET: Bright blue, typical "Next" button color
+
+CSS fix:
+
+  .next-btn {
+    background-color: #2962FF;
+    color: white;
+  }
+
+  .next-btn:hover {
+    background-color: #1B4FD1;
+  }
+
+Apply to BOTH Page 1 and Page 2.
+DO NOT modify anything else.
+
+=== 2026-08-19T22:47:46.873Z ===
+Fix Next button color on both pages.
+
+The Next button color should match the "NewBridge™" logo 
+text color exactly.
+
+CSS fix:
+
+  .next-btn {
+    background-color: #1A3C8E;
+    color: white;
+  }
+
+  .next-btn:hover {
+    background-color: #152F6E;
+  }
+
+If the NewBridge logo text uses a different color variable 
+or hex code in the codebase, use that SAME exact color for 
+the Next button. Check the Header component for the logo 
+color and apply it to the button.
+
+Appl
+
+=== 2026-08-19T22:52:12.230Z ===
+Fix Page 1 — preserve form data when user clicks Back from Page 2.
+
+PROBLEM:
+When user fills Page 1, clicks Next, goes to Page 2, then 
+clicks Back — Page 1 form is empty. All the data they entered 
+(name, DOB, gender, zip code, tobacco) is lost.
+
+EXPECTED:
+When user clicks Back from Page 2, Page 1 should show all 
+the previously entered data pre-filled.
+
+SOLUTION — Store form data in React context AND localStorage:
+
+1. SAVE form data when user clicks Next on Page 1:
+   - Before calling POST /api/quote/start, save all form 
+     fields to React context AND localStorage
+
+   const formData = {
+     first_name: "Sneha",
+     last_name: "Awhale",
+     date_of_birth: "11/11/1960",
+     gender: "Female",
+     zip_code: "45039",
+     tobacco_use: false
+   };
+   
+   // Save to context
+   setFormData(formData);
+   
+   // Save to localStorage
+   localStorage.setItem("formData", JSON.stringify(formData));
+
+2. RESTORE form data when Page 1 loads:
+   - On Page 1 mount, check if formData exists in context 
+     or localStorage
+   - If found, pre-fill all form fields with saved values
+
+   useEffect(() => {
+     // Check context first
+     if (contextFormData) {
+       setFirstName(contextFormData.first_name);
+       setLastName(contextFormData.last_name);
+       setDob(contextFormData.date_of_birth);
+       setGender(contextFormData.gender);
+       setZipCode(contextFormData.zip_code);
+       setTobacco(contextFormData.tobacco_use);
+       return;
+     }
+     
+     // Fallback to localStorage
+     const saved = localStorage.getItem("formData");
+     if (saved) {
+       const data = JSON.parse(saved);
+       setFirstName(data.first_name);
+       setLastName(data.last_name);
+       setDob(data.date_of_birth);
+       setGender(data.gender);
+       setZipCode(data.zip_code);
+       setTobacco(data.tobacco_use);
+     }
+   }, []);
+
+3. CLEAR form data when session is completed or new session starts:
+   - When POST /api/session/start creates a NEW session, 
+     clear old formData from localStorage
+   - When POST /api/quote/save completes, optionally clear
+
+4. The application_id should also persist:
+   - Already in localStorage (from earlier implementation)
+   - When user clicks Back and returns, same session ID shows
+
+ALSO preserve the Page 2 state:
+   - When user goes back to Page 1 then clicks Next again,
+     Page 2 should still show the previously selected 
+     coverage amount and rate class
+   - Save selected coverage and rate class to context/localStorage
+   - Restore on Page 2 load
+
+DO NOT modify any backend code.
+DO NOT modify the Footer or Header components.
+
+=== 2026-08-19T23:01:42.260Z ===
+Fix Next button default color on Page 1 only.
+
+The Next button on Page 1 should be dark navy blue by default,
+even when the form is not yet fully filled.
+
+CSS fix:
+
+  Page 1 .next-btn {
+    background-color: #1A237E;
+    color: white;
+    opacity: 1;
+  }
+
+  Page 1 .next-btn:disabled {
+    background-color: #1A237E;
+    color: white;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  Page 1 .next-btn:hover:not(:disabled) {
+    background-color: #0D1554;
+  }
+
+The button should always be dark navy — when disabled just 
+reduce opacity to 0.5, do NOT change it to gray or any 
+other color.
+
+DO NOT modify Page 2 Next button color.
+DO NOT modify anything else.
+
+=== 2026-08-19T23:22:28.717Z ===
+Add production configuration to serve React from Flask.
+
+Add this to the Flask app (run.py or app/__init__.py):
+
+import os
+from flask import send_from_directory
+
+# Serve React build files
+app.static_folder = os.path.join(os.path.dirname(__file__), 
+    '..', 'frontend', 'build', 'static')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    build_dir = os.path.join(os.path.dirname(__file__), 
+        '..', 'frontend', 'build')
+    if path and os.path.exists(os.path.join(build_dir, path)):
+        return send_from_directory(build_dir, path)
+    return send_from_directory(build_dir, 'index.html')
+
+Also create these files in the project root:
+
+Procfile:
+  web: gunicorn run:app
+
+requirements.txt (add if not there):
+  gunicorn
+
+DO NOT modify any frontend or existing backend code.
+
+=== 2026-08-20T00:01:48.789Z ===
+Fix Page 1 — clear form data on fresh visit, keep on Back navigation.
+
+PROBLEM:
+When user refreshes the page or opens it fresh, the old form 
+data (name, DOB, gender, zip, tobacco) is still showing from 
+localStorage. It should be empty on a fresh visit.
+
+WHEN TO KEEP DATA:
+  - User clicks Back from Page 2 → form should be pre-filled
+
+WHEN TO CLEAR DATA:
+  - User refreshes the page (F5)
+  - User opens the app in a new tab
+  - User closes and reopens the browser
+
+SOLUTION:
+Use a navigation flag to distinguish between "Back" and "fresh visit."
+
+1. When user clicks BACK on Page 2:
+   - Set a flag before navigating:
+     sessionStorage.setItem("cameFromBack", "true");
+     navigate("/");
+
+2. On Page 1 load:
+   - Check if the flag exists:
+     const cameFromBack = sessionStorage.getItem("cameFromBack");
+   
+   - If YES (came from Back button):
+     → Restore form data from localStorage
+     → Remove the flag: sessionStorage.removeItem("cameFromBack");
+   
+   - If NO (fresh visit, refresh, new tab):
+     → Clear all saved form data from localStorage
+     → Clear application_id from localStorage
+     → Start a new session (POST /api/session/start)
+     → Show empty form
+
+3. Use sessionStorage for the flag (not localStorage) because 
+   sessionStorage is automatically cleared when the tab is 
+   closed or refreshed. This is the key difference.
+
+CODE LOGIC for Page 1 useEffect:
+
+  useEffect(() => {
+    const cameFromBack = sessionStorage.getItem("cameFromBack");
+    
+    if (cameFromBack) {
+      // User clicked Back — restore data
+      sessionStorage.removeItem("cameFromBack");
+      const saved = localStorage.getItem("formData");
+      if (saved) {
+        const data = JSON.parse(saved);
+        setFirstName(data.first_name);
+        setLastName(data.last_name);
+        // ... restore all fields
+      }
+    } else {
+      // Fresh visit — clear everything
+      localStorage.removeItem("formData");
+      localStorage.removeItem("applicationId");
+      localStorage.removeItem("quoteData");
+      // Start new session
+      startNewSession();
+    }
+  }, []);
+
+CODE LOGIC for Page 2 Back button:
+
+  const handleBack = () => {
+
+=== 2026-08-20T00:12:59.281Z ===
+My React app on localhost:5173 is showing "Unable to start your session: Failed to fetch" when trying to reach the backend API.
+
+Please check:
+1. Is the Flask backend actually running, and on what port?
+2. Is CORS properly enabled on the Flask app so requests from localhost:5173 are allowed?
+3. Does the API URL in the React code match the actual Flask server's port and endpoint path?
+
+Fix whichever of these is the issue, and confirm both servers are running correctly.
+
+=== 2026-08-20T00:31:29.531Z ===
+Make the Accidental Death Benefit Rider functional on Page 2.
+
+CURRENT: The toggle is visual only — clicking it does nothing.
+
+TARGET: When the rider is toggled ON:
+  1. Calculate the rider premium
+  2. Add it to the base premium
+  3. Update the Policy Total to show the combined amount
+
+═══════════════════════════════════════════════════════
+BACKEND CHANGES
+═══════════════════════════════════════════════════════
+
+1. Add rider_rates table to database:
+   - id (INTEGER, PRIMARY KEY)
+   - rider_name (TEXT) → "Accidental Death Benefit"
+   - rate_per_1000 (REAL) → 0.50 per $1,000 of coverage/month
+     (flat rate, does not change by age)
+   - description (TEXT)
+   - is_active (BOOLEAN, DEFAULT true)
+
+2. Seed with:
+   ("Accidental Death Benefit", 0.50, 
+    "Doubles the Death Benefit if the Insured dies by 
+    Accidental Death", true)
+
+3. Add function to premium_calculator.py:
+
+   def calculate_rider_premium(coverage_amount, rider_name):
+       rider = lookup rider from rider_rates table
+       monthly = rider.rate_per_1000 * (coverage_amount / 1000)
+       annual = monthly * 12
+       return {
+           "rider_name": rider_name,
+           "monthly": round(monthly, 2),
+           "annual": round(annual, 2)
+       }
+
+   Example: $35,000 coverage
+   Rider premium = 0.50 × 35 = $17.50/month
+
+4. Add endpoint:
+
+   POST /api/quote/rider
+   Input: {
+     "application_id": "ARCF26230S375",
+     "rider_name": "Accidental Death Benefit",
+     "enabled": true
+   }
+   
+   Output: {
+     "rider_name": "Accidental Death Benefit",
+     "rider_monthly": 17.50,
+     "rider_annual": 210.00,
+     "base_premium": 142.65,
+     "total_monthly": 160.15,
+     "total_annual": 1921.80
+   }
+
+   When enabled=false:
+   {
+     "rider_name": "Accidental Death Benefit",
+     "rider_monthly": 0,
+     "rider_annual": 0,
+     "base_premium": 142.65,
+     "total_monthly": 142.65,
+     "total_annual": 1711.80
+   }
+
+═══════════════════════════════════════════════════════
+FRONTEND CHANGES — Page 2
+═══════════════════════════════════════════════════════
+
+When user toggles the Accidental Death Benefit Rider ON:
+
+1. Call POST /api/quote/rider with enabled: true
+2. Update the OPTIONAL RIDERS section:
+   - Toggle turns blue/active
+   - Show rider premium below the rider name:
+     "Accidental Death Benefit Rider"
+     "Doubles the Death Benefit if the Insured dies 
+      by Accidental Death"
+     "+ $17.50 /month"                ← NEW, show rider cost
+
+3. Update OPTIONAL RIDERS header:
+   - Change from "OPTIONAL RIDERS  0 of 1" 
+   - To: "OPTIONAL RIDERS  1 of 1"
+
+4. Update Policy Total card:
+   - Coverage:       $35,000.00
+   - Rate class:     Level Preferred
+   - Base premium:   $142.65 /mo
+   - Rider premium:  + $17.50 /mo     ← NEW line
+   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+   - TOTAL:          $160.15 /month    ← updated total
+
+5. The large premium display updates:
+   "$160.15 / month" (was $142.65)
+
+When user toggles the rider OFF:
+   - Remove rider premium line
+   - Total goes back to base premium
+   - Header back to "0 of 1"
+
+When user changes coverage amount (slider):
+   - If rider is ON, recalculate rider premium too
+   - rider_premium = 0.50 × (new_coverage / 1000)
+   - Update total = base_premium + rider_premium
+
+When user toggles Monthly/Annual:
+   - Show rider premium in matching unit
+   - Monthly: "+ $17.50 /mo"
+   - Annual: "+ $210.00 /yr"
+
+═══════════════════════════════════════════════════════
+UNIT TEST
+═══════════════════════════════════════════════════════
+
+Test: Age 65, Female, $35,000, Level Preferred, Rider ON
+  - Base premium: $142.65/month
+  - Rider premium: $17.50/month
+  - Total: $160.15/month
+  - Annual total: $1,921.80/year
+
+Test: Change coverage to $25,000, Rider still ON
+  - Base premium: recalculated
+  - Rider premium: 0.50 × 25 = $12.50/month
+  - Total: base + $12.50
+
+Test: Toggle rider OFF
+  - Total goes back to base premium only
+
+═══════════════════════════════════════════════════════
+
+Add Swagger documentation for the new endpoint.
+DO NOT modify Page 1.
+DO NOT modify the Header or Footer components.
+
+=== 2026-08-20T01:14:00.990Z ===
+Fix styling on Page 2 riders section.
+
+CHANGE 1: "Accidental Death Benefit Rider" — make bold
+  - Font-weight: 700
+  - Font-size: 14px (keep current)
+
+CHANGE 2: "Doubles the Death Benefit if the Insured dies 
+by Accidental Death" — reduce font size
+  - Font-size: 11px (smaller than current)
+  - Color: #888888 (gray)
+  - This makes room for the rider amount to fit on the 
+    same line or right side
+
+CHANGE 3: "Accelerated Death Benefit Rider for Terminal 
+Illness" in the Riders Included section — make bold
+  - Font-weight: 700
+  - Font-size: 13px
+
+CHANGE 4: Abbreviate /year to /yr everywhere
+  - In Policy Total: "$1,921.80 /yr" not "$1,921.80 /year"
+  - In rider premium:
+
+=== 2026-08-20T01:15:53.968Z ===
+yes, start the frontend dev server
+
+=== 2026-08-20T01:22:54.556Z ===
+On page two, make the coverage amount number and rate class value to bold , reduce the font size of the base premium amount and Accidental Death Benefit Rider amount number
+
+=== 2026-08-20T01:25:42.374Z ===
+Replace Rider premium with
+Accidental Death Benefit Rider
+
+=== 2026-08-20T01:26:51.415Z ===
+reduce the font size Accidental Death Benefit Rider amount number
+
+=== 2026-08-20T12:00:43.759Z ===
+claude --resume
+
+=== 2026-08-20T12:03:25.231Z ===
+clade agents
+
+=== 2026-08-20T12:36:51.919Z ===
+Read all the .jsonl session files in C:\Users\sneha\.claude\projects\C--Users-sneha-Documents-Aff-Demo-Model\ and C:\Users\sneha\.claude\projects\C--Users-sneha-Documents-Aff-Front-end\, extract only my prompts (the "user" role messages, text content only, skip tool results), and save them in order to a file called my_prompts_history.txt in this project folder.
+
