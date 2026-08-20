@@ -49,13 +49,40 @@ def test_7_tobacco_filtering_non_tobacco_user(app):
 
 
 def test_8_tobacco_filtering_tobacco_user(app):
-    quotes = get_all_quotes(50, "female", 35000, tobacco_use=True)
+    # Coverage kept under the Modified Tobacco threshold so both tobacco
+    # classes are eligible here — see test_8d/test_8e for the boundary itself.
+    quotes = get_all_quotes(50, "female", 15000, tobacco_use=True)
     by_name = {quote["rate_class"]: quote for quote in quotes}
 
     assert set(by_name.keys()) == set(TOBACCO_CLASSES)
     for name in TOBACCO_CLASSES:
         assert by_name[name]["eligible"] is True
         assert by_name[name]["monthly"] != "N/A"
+
+
+def test_8d_modified_tobacco_na_at_or_above_21000(app):
+    for coverage in (21000, 35000):
+        quotes = get_all_quotes(50, "female", coverage, tobacco_use=True)
+        by_name = {quote["rate_class"]: quote for quote in quotes}
+
+        # Still present (tobacco-relevant), just disabled — not excluded.
+        assert set(by_name.keys()) == set(TOBACCO_CLASSES)
+        assert by_name["Modified Tobacco"]["eligible"] is False
+        assert by_name["Modified Tobacco"]["monthly"] == "N/A"
+        assert by_name["Modified Tobacco"]["annual"] == "N/A"
+
+        # Level Tobacco has no coverage restriction.
+        assert by_name["Level Tobacco"]["eligible"] is True
+        assert by_name["Level Tobacco"]["monthly"] != "N/A"
+
+
+def test_8e_modified_tobacco_eligible_just_under_21000(app):
+    quotes = get_all_quotes(50, "female", 20000, tobacco_use=True)
+    by_name = {quote["rate_class"]: quote for quote in quotes}
+
+    assert by_name["Modified Tobacco"]["eligible"] is True
+    assert by_name["Modified Tobacco"]["monthly"] != "N/A"
+    assert by_name["Level Tobacco"]["eligible"] is True
 
 
 def test_8b_modified_non_tobacco_na_at_or_below_30000(app):

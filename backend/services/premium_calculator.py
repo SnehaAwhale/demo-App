@@ -61,10 +61,26 @@ def calculate_premium(age, gender, coverage_amount, rate_class_name, product_typ
     return {"monthly_premium": monthly, "annual_premium": annual}
 
 
-# Modified Non-Tobacco is only underwritable above this coverage amount;
-# at or below it, the class stays in the list (it's still tobacco-relevant)
-# but renders as a disabled N/A row rather than excluded outright.
+# Modified Non-Tobacco is only underwritable above this coverage amount.
 MODIFIED_NON_TOBACCO_MIN_COVERAGE = 30000
+# Modified Tobacco is only underwritable below this coverage amount.
+MODIFIED_TOBACCO_MAX_COVERAGE = 21000
+
+# Single source of truth for per-rate-class coverage eligibility, on top of
+# the base tobacco-status match below. A class listed here stays in the
+# results (it's still tobacco-relevant) but renders as a disabled N/A row
+# when its predicate fails, rather than being excluded outright. Add future
+# per-class coverage rules here instead of special-casing names in the loop.
+_COVERAGE_ELIGIBILITY_RULES = {
+    "Modified Non-Tobacco": (
+        lambda coverage: coverage > MODIFIED_NON_TOBACCO_MIN_COVERAGE,
+        f"Requires coverage above ${MODIFIED_NON_TOBACCO_MIN_COVERAGE:,}",
+    ),
+    "Modified Tobacco": (
+        lambda coverage: coverage < MODIFIED_TOBACCO_MAX_COVERAGE,
+        f"Requires coverage below ${MODIFIED_TOBACCO_MAX_COVERAGE:,}",
+    ),
+}
 
 
 def get_all_quotes(age, gender, coverage_amount, tobacco_use, product_type="L"):
@@ -80,19 +96,20 @@ def get_all_quotes(age, gender, coverage_amount, tobacco_use, product_type="L"):
         if bool(tobacco_use) != bool(rate_class.requires_tobacco):
             continue
 
-        # Still relevant to this applicant's tobacco answer, but not
-        # underwritable for them — keep the row, show it as disabled N/A.
-        if rate_class.name == "Modified Non-Tobacco" and coverage_amount <= MODIFIED_NON_TOBACCO_MIN_COVERAGE:
-            results.append(
-                {
-                    "rate_class": rate_class.name,
-                    "monthly": "N/A",
-                    "annual": "N/A",
-                    "eligible": False,
-                    "reason": f"Requires coverage above ${MODIFIED_NON_TOBACCO_MIN_COVERAGE:,}",
-                }
-            )
-            continue
+        coverage_rule = _COVERAGE_ELIGIBILITY_RULES.get(rate_class.name)
+        if coverage_rule is not None:
+            is_eligible, reason = coverage_rule
+            if not is_eligible(coverage_amount):
+                results.append(
+                    {
+                        "rate_class": rate_class.name,
+                        "monthly": "N/A",
+                        "annual": "N/A",
+                        "eligible": False,
+                        "reason": reason,
+                    }
+                )
+                continue
 
         monthly, annual = _compute_premium(base_rate.rate_per_1000, coverage_amount, rate_class.multiplier)
         results.append(
