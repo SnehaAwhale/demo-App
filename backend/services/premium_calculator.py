@@ -68,38 +68,23 @@ def get_all_quotes(age, gender, coverage_amount, tobacco_use, product_type="L"):
 
     results = []
     for rate_class in RateClass.query.all():
-        if not tobacco_use and rate_class.requires_tobacco:
-            results.append(
-                {
-                    "rate_class": rate_class.name,
-                    "monthly": "N/A",
-                    "annual": "N/A",
-                    "eligible": False,
-                    "reason": "Tobacco rate class - not applicable",
-                }
-            )
-        elif tobacco_use and not rate_class.requires_tobacco:
-            results.append(
-                {
-                    "rate_class": rate_class.name,
-                    "monthly": "N/A",
-                    "annual": "N/A",
-                    "eligible": False,
-                    "reason": "Non-tobacco rate class - not applicable",
-                }
-            )
-        else:
-            monthly, annual = _compute_premium(
-                base_rate.rate_per_1000, coverage_amount, rate_class.multiplier
-            )
-            results.append(
-                {
-                    "rate_class": rate_class.name,
-                    "monthly": monthly,
-                    "annual": annual,
-                    "eligible": True,
-                }
-            )
+        # A rate class that doesn't match the applicant's tobacco status is
+        # not just ineligible, it's not a valid option at all — omit it
+        # entirely rather than listing it as a disabled N/A row. (Genuine
+        # underwriting-ineligibility reasons, if added later, belong in the
+        # `else` branch below so they still show as a disabled row.)
+        if bool(tobacco_use) != bool(rate_class.requires_tobacco):
+            continue
+
+        monthly, annual = _compute_premium(base_rate.rate_per_1000, coverage_amount, rate_class.multiplier)
+        results.append(
+            {
+                "rate_class": rate_class.name,
+                "monthly": monthly,
+                "annual": annual,
+                "eligible": True,
+            }
+        )
 
     results.sort(key=lambda r: r["monthly"] if isinstance(r["monthly"], float) else float("inf"))
     return results

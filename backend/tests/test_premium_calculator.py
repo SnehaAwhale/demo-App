@@ -42,28 +42,20 @@ def test_7_tobacco_filtering_non_tobacco_user(app):
     quotes = get_all_quotes(50, "female", 35000, tobacco_use=False)
     by_name = {quote["rate_class"]: quote for quote in quotes}
 
+    assert set(by_name.keys()) == set(NON_TOBACCO_CLASSES)
     for name in NON_TOBACCO_CLASSES:
         assert by_name[name]["eligible"] is True
         assert by_name[name]["monthly"] != "N/A"
-
-    for name in TOBACCO_CLASSES:
-        assert by_name[name]["eligible"] is False
-        assert by_name[name]["monthly"] == "N/A"
-        assert by_name[name]["annual"] == "N/A"
 
 
 def test_8_tobacco_filtering_tobacco_user(app):
     quotes = get_all_quotes(50, "female", 35000, tobacco_use=True)
     by_name = {quote["rate_class"]: quote for quote in quotes}
 
+    assert set(by_name.keys()) == set(TOBACCO_CLASSES)
     for name in TOBACCO_CLASSES:
         assert by_name[name]["eligible"] is True
         assert by_name[name]["monthly"] != "N/A"
-
-    for name in NON_TOBACCO_CLASSES:
-        assert by_name[name]["eligible"] is False
-        assert by_name[name]["monthly"] == "N/A"
-        assert by_name[name]["annual"] == "N/A"
 
 
 def test_9_age_validation(app):
