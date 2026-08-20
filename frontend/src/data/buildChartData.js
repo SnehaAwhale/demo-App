@@ -1,0 +1,25 @@
+// Height & Weight Build Chart — underwriting risk classification reference
+// table. Values are exact underwriting figures; do not round or fabricate.
+export const BUILD_CHART_ROWS = [
+  { height: "4'8\"", preferred: [81, 178], standard: [179, 196], modified: [197, 214] },
+  { height: "4'9\"", preferred: [83, 185], standard: [186, 203], modified: [204, 221] },
+  { height: "4'10\"", preferred: [86, 191], standard: [192, 210], modified: [211, 229] },
+  { height: "4'11\"", preferred: [89, 198], standard: [199, 218], modified: [219, 237] },
+  { height: "5'0\"", preferred: [93, 205], standard: [206, 225], modified: [226, 245], highlighted: true },
+  { height: "5'1\"", preferred: [96, 211], standard: [212, 233], modified: [234, 254] },
+  { height: "5'2\"", preferred: [101, 218], standard: [219, 240], modified: [241, 262] },
+  { height: "5'3\"", preferred: [104, 226], standard: [227, 248], modified: [249, 271] },
+  { height: "5'4\"", preferred: [106, 233], standard: [234, 256], modified: [257, 279] },
+  { height: "5'5\"", preferred: [109, 240], standard: [241, 264], modified: [265, 288] },
+  { height: "5'6\"", preferred: [113, 248], standard: [249, 272], modified: [273, 297], highlighted: true },
+  { height: "5'7\"", preferred: [116, 255], standard: [256, 281], modified: [282, 306] },
+  { height: "5'8\"", preferred: [121, 263], standard: [264, 289], modified: [290, 315] },
+  { height: "5'9\"", preferred: [125, 271], standard: [272, 298], modified: [299, 325] },
+  { height: "5'10\"", preferred: [129, 279], standard: [280, 307], modified: [308, 334] },
+  { height: "5'11\"", preferred: [133, 287], standard: [288, 315], modified: [316, 344] },
+  { height: "6'0\"", preferred: [136, 295], standard: [296, 324], modified: [325, 353], highlighted: true },
+  { height: "6'1\"", preferred: [140, 303], standard: [304, 333], modified: [334, 363] },
+  { height: "6'2\"", preferred: [143, 311], standard: [312, 343], modified: [344, 373] },
+  { height: "6'3\"", preferred: [147, 320], standard: [321, 352], modified: [353, 384] },
+  { height: "6'4\"", preferred: [151, 329], standard: [330, 361], modified: [362, 394] },
+];

@@ -1,0 +1,120 @@
+.build-chart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.build-chart-frame {
+  position: relative;
+  background: #bfd9f2;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+}
+
+.build-chart-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  color: #2554c7;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.build-chart-card {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.build-chart-table-wrapper {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  max-height: calc(90vh - 40px);
+}
+
+.build-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+.build-chart-table th,
+.build-chart-table td {
+  border: 1px solid #d0d5dd;
+  padding: 10px 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.build-chart-table thead th {
+  background: #ffffff;
+  color: #1a1a1a;
+  font-weight: 700;
+  position: sticky;
+  z-index: 2;
+}
+
+.build-chart-table thead tr:first-child th {
+  top: 0;
+}
+
+.build-chart-table thead tr:last-child th {
+  top: 41px;
+}
+
+.build-chart-table__height-header {
+  vertical-align: middle;
+}
+
+.build-chart-table tbody td {
+  color: #1a1a1a;
+  font-weight: 400;
+  background: #ffffff;
+}
+
+.build-chart-table .build-chart-row--highlighted td {
+  background: #3355a8;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .build-chart-frame {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .build-chart-table th,
+  .build-chart-table td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

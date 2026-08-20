@@ -1,6 +1,8 @@
+import { useState } from "react";
 import SegmentedToggle from "./SegmentedToggle";
 import RateClassTable from "./RateClassTable";
 import OptionalRiders from "./OptionalRiders";
+import BuildChartModal from "./BuildChartModal";
 import { formatWholeCurrency, parseCurrencyDigits } from "../../utils/currency";
 import "./QuoteBuilderCard.css";
 
@@ -23,6 +25,8 @@ export default function QuoteBuilderCard({
   riderMonthly,
   riderAnnual,
 }) {
+  const [isBuildChartOpen, setIsBuildChartOpen] = useState(false);
+
   function handleCoverageInputChange(event) {
     const digits = parseCurrencyDigits(event.target.value);
     onCoverageAmountChange(digits);
@@ -58,7 +62,7 @@ export default function QuoteBuilderCard({
         <div className="rate-class-section">
           <div className="rate-class-header">
             <span className="rate-class-header__label">Rate Class</span>
-            <button type="button" className="build-chart-btn">
+            <button type="button" className="build-chart-btn" onClick={() => setIsBuildChartOpen(true)}>
               Build Chart
             </button>
           </div>
@@ -80,6 +84,8 @@ export default function QuoteBuilderCard({
         riderAnnual={riderAnnual}
         premiumBasis={premiumBasis}
       />
+
+      {isBuildChartOpen && <BuildChartModal onClose={() => setIsBuildChartOpen(false)} />}
     </div>
   );
 }
