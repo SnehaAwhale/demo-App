@@ -1,0 +1,12 @@
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+backend/.venv/
+backend/instance/
+backend/*.db
+
+frontend/node_modules/
+frontend/dist/
+
+.git/
+my_prompts_history.txt
