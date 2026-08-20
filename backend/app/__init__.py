@@ -25,8 +25,13 @@ def create_app(config_name=None):
 
     with app.app_context():
         from app import models  # noqa: F401 - ensure models are registered before create_all
+        from app.seeds.seed_data import seed_all
 
         db.create_all()
+        # Idempotent (get-or-create) — safe to run on every boot, and keeps
+        # a fresh database (e.g. a new Postgres instance on Railway) self-healing
+        # without a manual seed step.
+        seed_all()
 
     # Serve the built React app (frontend/dist, from `npm run build`) in production.
     frontend_dist = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
