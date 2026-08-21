@@ -39,15 +39,17 @@ export default function OptionalRiders({ isOn, onToggle, isToggling, riderMonthl
             <span className="toggle-switch__knob" />
           </button>
           <div className="optional-riders__text">
-            <div className="optional-riders__title">Accidental Death Benefit Rider</div>
+            <div className="optional-riders__title-row">
+              <div className="optional-riders__title">Accidental Death Benefit Rider</div>
+              {isOn && riderPremium != null && (
+                <div className="optional-riders__premium">
+                  + {formatCurrencyWithCents(riderPremium)} {unitLabel}
+                </div>
+              )}
+            </div>
             <div className="optional-riders__subtitle">
               Doubles the Death Benefit if the Insured dies by Accidental Death
             </div>
-            {isOn && riderPremium != null && (
-              <div className="optional-riders__premium">
-                + {formatCurrencyWithCents(riderPremium)} {unitLabel}
-              </div>
-            )}
           </div>
         </div>
       )}
