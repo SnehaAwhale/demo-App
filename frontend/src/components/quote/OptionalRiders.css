@@ -42,9 +42,15 @@
   margin-top: 16px;
 }
 
+.optional-riders__text {
+  flex: 1;
+  min-width: 0;
+}
+
 .optional-riders__title-row {
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
   gap: 10px;
 }
 
