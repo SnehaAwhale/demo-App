@@ -61,8 +61,8 @@ def calculate_premium(age, gender, coverage_amount, rate_class_name, product_typ
     return {"monthly_premium": monthly, "annual_premium": annual}
 
 
-# Modified Non-Tobacco is only underwritable above this coverage amount.
-MODIFIED_NON_TOBACCO_MIN_COVERAGE = 30000
+# Modified Non-Tobacco is only underwritable at or below this coverage amount.
+MODIFIED_NON_TOBACCO_MAX_COVERAGE = 30000
 # Modified Tobacco is only underwritable below this coverage amount.
 MODIFIED_TOBACCO_MAX_COVERAGE = 21000
 
@@ -73,8 +73,8 @@ MODIFIED_TOBACCO_MAX_COVERAGE = 21000
 # per-class coverage rules here instead of special-casing names in the loop.
 _COVERAGE_ELIGIBILITY_RULES = {
     "Modified Non-Tobacco": (
-        lambda coverage: coverage > MODIFIED_NON_TOBACCO_MIN_COVERAGE,
-        f"Requires coverage above ${MODIFIED_NON_TOBACCO_MIN_COVERAGE:,}",
+        lambda coverage: coverage <= MODIFIED_NON_TOBACCO_MAX_COVERAGE,
+        f"Requires coverage of ${MODIFIED_NON_TOBACCO_MAX_COVERAGE:,} or below",
     ),
     "Modified Tobacco": (
         lambda coverage: coverage < MODIFIED_TOBACCO_MAX_COVERAGE,

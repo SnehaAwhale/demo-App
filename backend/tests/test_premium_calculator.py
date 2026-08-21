@@ -39,7 +39,10 @@ def test_6_coverage_change(app):
 
 
 def test_7_tobacco_filtering_non_tobacco_user(app):
-    quotes = get_all_quotes(50, "female", 35000, tobacco_use=False)
+    # Coverage kept at or below the Modified Non-Tobacco threshold so all
+    # three non-tobacco classes are eligible here — see test_8b/test_8c for
+    # the boundary itself.
+    quotes = get_all_quotes(50, "female", 25000, tobacco_use=False)
     by_name = {quote["rate_class"]: quote for quote in quotes}
 
     assert set(by_name.keys()) == set(NON_TOBACCO_CLASSES)
@@ -85,28 +88,28 @@ def test_8e_modified_tobacco_eligible_just_under_21000(app):
     assert by_name["Level Tobacco"]["eligible"] is True
 
 
-def test_8b_modified_non_tobacco_na_at_or_below_30000(app):
+def test_8b_modified_non_tobacco_na_above_30000(app):
+    quotes = get_all_quotes(50, "female", 31000, tobacco_use=False)
+    by_name = {quote["rate_class"]: quote for quote in quotes}
+
+    # Still present (tobacco-relevant), just disabled — not excluded.
+    assert set(by_name.keys()) == set(NON_TOBACCO_CLASSES)
+    assert by_name["Modified Non-Tobacco"]["eligible"] is False
+    assert by_name["Modified Non-Tobacco"]["monthly"] == "N/A"
+    assert by_name["Modified Non-Tobacco"]["annual"] == "N/A"
+
+    # The other two non-tobacco classes are unaffected.
+    assert by_name["Level Preferred"]["eligible"] is True
+    assert by_name["Level Non-Tobacco"]["eligible"] is True
+
+
+def test_8c_modified_non_tobacco_eligible_at_or_below_30000(app):
     for coverage in (25000, 30000):
         quotes = get_all_quotes(50, "female", coverage, tobacco_use=False)
         by_name = {quote["rate_class"]: quote for quote in quotes}
 
-        # Still present (tobacco-relevant), just disabled — not excluded.
-        assert set(by_name.keys()) == set(NON_TOBACCO_CLASSES)
-        assert by_name["Modified Non-Tobacco"]["eligible"] is False
-        assert by_name["Modified Non-Tobacco"]["monthly"] == "N/A"
-        assert by_name["Modified Non-Tobacco"]["annual"] == "N/A"
-
-        # The other two non-tobacco classes are unaffected.
-        assert by_name["Level Preferred"]["eligible"] is True
-        assert by_name["Level Non-Tobacco"]["eligible"] is True
-
-
-def test_8c_modified_non_tobacco_eligible_above_30000(app):
-    quotes = get_all_quotes(50, "female", 31000, tobacco_use=False)
-    by_name = {quote["rate_class"]: quote for quote in quotes}
-
-    assert by_name["Modified Non-Tobacco"]["eligible"] is True
-    assert by_name["Modified Non-Tobacco"]["monthly"] != "N/A"
+        assert by_name["Modified Non-Tobacco"]["eligible"] is True
+        assert by_name["Modified Non-Tobacco"]["monthly"] != "N/A"
 
 
 def test_9_age_validation(app):
